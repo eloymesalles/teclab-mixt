@@ -46,6 +46,9 @@ class TeclabSpawner(DockerSpawner):
 c.JupyterHub.spawner_class = TeclabSpawner
 c.DockerSpawner.image = IMAGE
 c.DockerSpawner.pull_policy = "never"  # la imatge és local al host
+# DockerSpawner no imposa cap ordre: sense això l'espai arrencaria amb el CMD de la
+# imatge (jupyter lab amb token) i el hub no el podria gestionar
+c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
 c.DockerSpawner.name_template = "jupyter-{username}"
 c.DockerSpawner.network_name = WORK_NETWORK
 c.DockerSpawner.use_internal_ip = True
