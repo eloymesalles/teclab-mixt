@@ -6,22 +6,29 @@ la passarel·la (`LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL`) a l'entorn.
 
 ## Requisits
 
-- Servidor de Coder desplegat (docker-stack, `demo/coder/`) amb el socket de Docker i la
-  variable d'entorn `TF_VAR_litellm_key` (la clau virtual de LiteLLM). La clau no és enlloc
+- Servidor de Coder desplegat (docker-stack, `demo/coder/`) amb el socket de Docker. La
+  clau virtual de LiteLLM és a l'entorn del contenidor del servidor (`TF_VAR_litellm_key`,
+  des del `.env` de docker-stack) només per poder passar-la al `push`; la clau no és enlloc
   d'aquest repo.
 - La imatge `teclab-mixt:0.1.0` construïda al daemon de Docker del servidor.
 - Xarxes Docker `demo-coder` i `demo-edge` existents (les crea el compose de docker-stack).
 
 ## Pujar la plantilla
 
-Des del servidor, amb la CLI de Coder (`coder login https://coder.mesalles.org`):
+Des del contenidor del servidor de Coder (docker-stack, `demo/coder/`), amb la CLI
+autenticada (`coder login https://coder.mesalles.org`):
 
 ```bash
-coder templates push teclab-mixt -d coder/ --default-ttl 30m -y
+# copiar la plantilla al contenidor
+docker compose --env-file .env -f demo/coder/docker-compose.yml cp ../teclab-mixt/coder coder:/tmp/teclab-mixt
+# pujar-la: la clau és una VARIABLE DE PLANTILLA (Coder la guarda xifrada), no l'entorn de Terraform
+docker compose --env-file .env -f demo/coder/docker-compose.yml exec coder   sh -c 'coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key"'
+# aturada per inactivitat de la demo (el push no té aquest flag)
+docker compose --env-file .env -f demo/coder/docker-compose.yml exec coder   coder templates edit teclab-mixt --default-ttl 30m -y
 ```
 
-`--default-ttl 30m` és l'aturada per inactivitat de la demo: un espai s'atura 30 minuts
-després de l'última activitat. Per actualitzar la plantilla, el mateix ordre.
+Un espai s'atura 30 minuts després de l'última activitat. Per actualitzar la plantilla,
+el mateix `push` (la variable es conserva si no es torna a passar).
 
 ## Crear un espai
 
