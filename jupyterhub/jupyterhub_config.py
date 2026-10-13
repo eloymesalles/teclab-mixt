@@ -63,6 +63,10 @@ c.DockerSpawner.environment = {
     "LITELLM_BASE_URL": "https://api.mesalles.org/v1",
     "LITELLM_KEY": litellm_key,
     "LITELLM_MODEL": "qwen3:8b",
+    # VS Code al launcher (jupyter-code-server): sense contrasenya pròpia (ja hi ha Google
+    # davant i el servidor de l'usuari exigeix la sessió del hub), obrint el directori de treball
+    "CODE_DISABLE_PASSWORD": "true",
+    "CODE_WORKING_DIRECTORY": "/home/teclab/work",
 }
 # Exemples a mà a work/ (sense sobreescriure canvis de l'usuari)
 c.DockerSpawner.post_start_cmd = "sh -c '[ -e /home/teclab/work/examples ] || cp -r /home/teclab/examples /home/teclab/work/examples'"
