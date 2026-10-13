@@ -38,7 +38,8 @@ class TeclabSpawner(DockerSpawner):
 
     async def start(self, *args, **kwargs):
         result = await super().start(*args, **kwargs)
-        await self.docker("connect_container_to_network", EDGE_NETWORK, self.container_id)
+        # docker-py: connect_container_to_network(container, net_id)
+        await self.docker("connect_container_to_network", self.container_id, EDGE_NETWORK)
         return result
 
 
