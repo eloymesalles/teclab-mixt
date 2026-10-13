@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentació
+    url: https://github.com/mesalles/teclab-mixt/blob/main/README.md
+    about: Imatge d'espai de treball teclab-mixt (Coder i JupyterHub)
