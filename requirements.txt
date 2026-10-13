@@ -1,0 +1,13 @@
+# Paquets Python de la imatge teclab-mixt (versions fixades; vegeu CLAUDE.md)
+jupyterlab==4.6.4
+ipykernel==7.4.0
+# Mateixa versió que el JupyterHub de la demo: aporta jupyterhub-singleuser
+jupyterhub==6.0.1
+# VS Code (code-server) al launcher de JupyterLab
+jupyter-server-proxy==4.6.0
+jupyter-code-server==1.2
+# Client compatible amb OpenAI per a la passarel·la LiteLLM
+openai==3.29.0
+# Qualitat
+ruff==0.17.0
+detect-secrets==1.5.0
