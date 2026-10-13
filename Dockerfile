@@ -1,0 +1,75 @@
+# teclab-mixt — imatge d'espai de treball compartida per Coder i JupyterHub.
+# Totes les versions fixades. Arquitectura: linux/amd64.
+FROM python:3.12.15-slim-bookworm
+
+ARG NODE_VERSION=24.21.0
+ARG CODE_SERVER_VERSION=4.141.0
+ARG POCKETBASE_VERSION=0.40.5
+ARG UV_VERSION=0.13.0
+ARG USER=teclab
+ARG UID=1000
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    LANG=C.UTF-8
+
+# ── Sistema ──
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates curl git openssh-client tini xz-utils unzip procps bash nano less \
+ && rm -rf /var/lib/apt/lists/*
+
+# ── Node.js LTS ──
+RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz \
+ && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 --exclude='*.md' --exclude='LICENSE' \
+ && rm /tmp/node.tar.xz \
+ && node --version && npm --version
+
+# ── code-server (VS Code al navegador) ──
+RUN curl -fsSL "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server-${CODE_SERVER_VERSION}-linux-amd64.tar.gz" -o /tmp/code-server.tar.gz \
+ && mkdir -p /opt/code-server \
+ && tar -xzf /tmp/code-server.tar.gz -C /opt/code-server --strip-components=1 \
+ && rm /tmp/code-server.tar.gz \
+ && ln -s /opt/code-server/bin/code-server /usr/local/bin/code-server \
+ && code-server --version
+
+# ── PocketBase (binari, no s'engega per defecte) ──
+RUN curl -fsSL "https://github.com/pocketbase/pocketbase/releases/download/v${POCKETBASE_VERSION}/pocketbase_${POCKETBASE_VERSION}_linux_amd64.zip" -o /tmp/pb.zip \
+ && mkdir -p /opt/pocketbase \
+ && unzip -q /tmp/pb.zip -d /opt/pocketbase pocketbase \
+ && rm /tmp/pb.zip \
+ && chmod +x /opt/pocketbase/pocketbase \
+ && /opt/pocketbase/pocketbase --version
+
+# ── Python: uv i paquets (JupyterLab, single-user de JupyterHub, VS Code al launcher,
+#    client d'OpenAI, eines de qualitat) ──
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install "uv==${UV_VERSION}" \
+ && uv pip install --system --no-cache -r /tmp/requirements.txt \
+ && rm /tmp/requirements.txt \
+ && jupyter lab --version && jupyterhub-singleuser --version
+
+# ── Usuari no root ──
+RUN useradd --create-home --uid ${UID} --shell /bin/bash ${USER} \
+ && mkdir -p /home/${USER}/work /home/${USER}/examples \
+ && chown -R ${USER}:${USER} /home/${USER}
+
+COPY --chown=${USER}:${USER} examples/ /home/${USER}/examples/
+
+USER ${USER}
+WORKDIR /home/${USER}/work
+ENV HOME=/home/${USER} \
+    PATH=/home/${USER}/.local/bin:${PATH} \
+    SHELL=/bin/bash \
+    # Passarel·la LLM (la clau arriba sempre per l'entorn de l'espai, mai per aquí)
+    LITELLM_BASE_URL=https://api.mesalles.org/v1 \
+    LITELLM_MODEL=qwen3:8b
+
+EXPOSE 8888 8080
+
+ENTRYPOINT ["tini", "--"]
+# Per defecte, JupyterLab (ús directe o per JupyterHub, que substitueix l'ordre per
+# jupyterhub-singleuser). La plantilla de Coder arrenca code-server des del seu agent.
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser"]
