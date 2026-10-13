@@ -38,13 +38,17 @@ class TeclabSpawner(DockerSpawner):
 
     async def start(self, *args, **kwargs):
         result = await super().start(*args, **kwargs)
-        await self.docker("connect_container_to_network", EDGE_NETWORK, self.container_id)
+        # docker-py: connect_container_to_network(container, net_id)
+        await self.docker("connect_container_to_network", self.container_id, EDGE_NETWORK)
         return result
 
 
 c.JupyterHub.spawner_class = TeclabSpawner
 c.DockerSpawner.image = IMAGE
 c.DockerSpawner.pull_policy = "never"  # la imatge és local al host
+# DockerSpawner no imposa cap ordre: sense això l'espai arrencaria amb el CMD de la
+# imatge (jupyter lab amb token) i el hub no el podria gestionar
+c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
 c.DockerSpawner.name_template = "jupyter-{username}"
 c.DockerSpawner.network_name = WORK_NETWORK
 c.DockerSpawner.use_internal_ip = True
@@ -59,6 +63,10 @@ c.DockerSpawner.environment = {
     "LITELLM_BASE_URL": "https://api.mesalles.org/v1",
     "LITELLM_KEY": litellm_key,
     "LITELLM_MODEL": "qwen3:8b",
+    # VS Code al launcher (jupyter-code-server): sense contrasenya pròpia (ja hi ha Google
+    # davant i el servidor de l'usuari exigeix la sessió del hub), obrint el directori de treball
+    "CODE_DISABLE_PASSWORD": "true",
+    "CODE_WORKING_DIRECTORY": "/home/teclab/work",
 }
 # Exemples a mà a work/ (sense sobreescriure canvis de l'usuari)
 c.DockerSpawner.post_start_cmd = "sh -c '[ -e /home/teclab/work/examples ] || cp -r /home/teclab/examples /home/teclab/work/examples'"
