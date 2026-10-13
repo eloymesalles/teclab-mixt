@@ -1,10 +1,10 @@
 # Plantilla de Coder «teclab-mixt»: un espai de treball per projecte amb VS Code
 # (code-server) i JupyterLab, sobre la imatge compartida amb JupyterHub.
 #
-# Pujar-la (des del servidor, amb la CLI de Coder autenticada):
-#   coder templates push teclab-mixt -d coder/ --default-ttl 30m -y
-# La clau de la passarel·la arriba al provisionador com a TF_VAR_litellm_key
-# (variable d'entorn del servidor de Coder; vegeu docker-stack demo/coder).
+# Pujar-la (des del contenidor del servidor, CLI autenticada; vegeu README.md):
+#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key"
+#   coder templates edit teclab-mixt --default-ttl 30m -y
+# La clau és una variable de plantilla (Coder la guarda xifrada); mai al codi.
 
 terraform {
   required_providers {
@@ -21,7 +21,7 @@ terraform {
 
 # ── Variables ──
 variable "litellm_key" {
-  description = "Clau virtual de la passarel·la LiteLLM per als espais (TF_VAR_litellm_key al servidor)."
+  description = "Clau virtual de la passarel·la LiteLLM per als espais (es fixa amb --variable en pujar la plantilla)."
   type        = string
   sensitive   = true
 }
