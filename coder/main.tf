@@ -1,5 +1,6 @@
 # Plantilla de Coder «teclab-mixt»: un espai de treball per projecte amb VS Code
-# (code-server) i JupyterLab, sobre la imatge compartida amb JupyterHub.
+# (code-server), JupyterLab i Codex CLI al terminal, sobre la imatge compartida amb
+# JupyterHub.
 #
 # Pujar-la (des del contenidor del servidor, CLI autenticada; vegeu README.md):
 #   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key"
@@ -29,7 +30,7 @@ variable "litellm_key" {
 variable "workspace_image" {
   description = "Imatge d'espai de treball (ha d'existir al daemon de Docker del servidor)."
   type        = string
-  default     = "teclab-mixt:0.1.0"
+  default     = "teclab-mixt:0.2.0"
 }
 
 variable "litellm_base_url" {
@@ -40,6 +41,12 @@ variable "litellm_base_url" {
 variable "litellm_model" {
   type    = string
   default = "qwen3:8b"
+}
+
+variable "codex_model" {
+  description = "Model (d'OpenAI, via la passarel·la) que fa servir Codex CLI al terminal de l'espai."
+  type        = string
+  default     = "gpt-6.1-sol"
 }
 
 # ── Coder ──
@@ -57,6 +64,8 @@ resource "coder_agent" "main" {
     LITELLM_BASE_URL = var.litellm_base_url
     LITELLM_KEY      = var.litellm_key
     LITELLM_MODEL    = var.litellm_model
+    # Codex CLI llegeix la clau de LITELLM_KEY (env_key) i el model d'aquí
+    CODEX_MODEL      = var.codex_model
   }
 
   startup_script = <<-EOT
