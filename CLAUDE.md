@@ -12,9 +12,14 @@ d'escriptori gestionats al Teclab (laboratori d'IA de la UJI): **Coder** i
 imatge que els dos fan servir (plantilla de Coder i *single-user image* de JupyterHub)
 per demostrar que el codi és portable entre els dos.
 
-- `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, `openai`, git, ruff,
-  detect-secrets, PocketBase (binari, no s'engega), exemples. **Versions fixades**, mai
-  `:latest`.
+- `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Codex CLI, `openai`,
+  git, ruff, detect-secrets, PocketBase (binari, no s'engega), exemples. **Versions
+  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.2.0` (cada canvi d'imatge puja
+  la versió; docker-stack la fixa als compose i a la plantilla de Coder).
+- `bin/codex` — embolcall instal·lat a `/usr/local/bin/codex`: genera
+  `~/.codex/config.toml` el primer cop (proveïdor `teclab` = passarel·la, `env_key =
+  LITELLM_KEY`, `wire_api = "responses"`, model `CODEX_MODEL`, `on-request` +
+  `read-only`) i executa el binari de `@openai/codex`.
 - `examples/` — `resum.py` i un notebook que criden la passarel·la LiteLLM
   (`LITELLM_BASE_URL`, `LITELLM_KEY`) per obtenir una resposta real de l'Ollama local.
 - `coder/` — plantilla Terraform (proveïdor Docker) que usa la imatge.
@@ -34,6 +39,11 @@ no s'ha de tocar.
   OpenAI). Dins de Docker, el nom resol a Caddy per la xarxa `demo-edge` (àlies), no a
   Internet. Model per defecte dels exemples: `qwen3:8b` (model de raonament: cal un
   `max_tokens` generós o el contingut arriba buit).
+- **Codex CLI**: apunta sempre a la passarel·la, mai a `api.openai.com`; l'espai no ha de
+  tenir cap clau d'OpenAI. Només admet l'API Responses (`wire_api = "responses"`; `chat`
+  ja no existeix), que LiteLLM serveix a `/v1/responses`. Model per defecte `gpt-6.1-sol`
+  (d'OpenAI; el consum compta contra la clau del projecte). Mantén el mode conservador
+  (demana confirmació per a ordres i escriptures): és un sandbox compartit de demo.
 - **Recursos**: cada espai, 2 vCPU i 3 GiB com a màxim; aturada per inactivitat a 30 min
   a les dues eines. Docker Desktop (WSL2) té 16 GB per a tots els contenidors.
 - **Superfície pública**: JupyterHub va darrere d'oauth2-proxy; Coder té autenticació
