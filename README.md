@@ -51,7 +51,11 @@ codex "explica què fa examples/resum.py"
   pressupost de la clau del projecte** a `https://api.mesalles.org/ui`.
 - **Mode conservador**: `approval_policy = "on-request"` i `sandbox_mode = "read-only"`.
   Llegeix lliurement, però demana confirmació abans d'executar ordres o escriure fitxers.
-  El sandbox usa Landlock i seccomp, disponibles dins dels espais.
+  El sandbox de Linux de Codex és **bubblewrap** i necessita espais de noms d'usuari sense
+  privilegis, que el perfil seccomp per defecte de Docker bloqueja: per això els espais
+  de Coder i de JupyterHub arrenquen amb `seccomp=unconfined` (sense capacitats ni
+  socket, igualment). En un contenidor sense aquesta opció, Codex no pot executar cap
+  ordre (`bwrap: No permissions to create a new namespace`).
 - **Configuració**: `~/.codex/config.toml` el genera l'embolcall `/usr/local/bin/codex`
   (font: `bin/codex`) el primer cop que s'executa, a partir de `LITELLM_BASE_URL` i
   `CODEX_MODEL`. No conté cap clau (Codex la llegeix de `LITELLM_KEY` amb `env_key`). Es
@@ -77,9 +81,10 @@ cp .env.example .env   # i omple LITELLM_KEY
 docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.2.0 \
   python /home/teclab/examples/resum.py
 
-# Codex CLI sense interactiu (genera ~/.codex/config.toml i respon)
-docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.2.0 \
-  codex exec "explica en dues frases què fa /home/teclab/examples/resum.py"
+# Codex CLI sense interactiu (genera ~/.codex/config.toml i respon); el seccomp és pel sandbox
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway \
+  --security-opt seccomp=unconfined teclab-mixt:0.2.0 \
+  codex exec --skip-git-repo-check "explica en dues frases què fa /home/teclab/examples/resum.py"
 
 # JupyterLab en local (http://localhost:8888)
 docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.2.0

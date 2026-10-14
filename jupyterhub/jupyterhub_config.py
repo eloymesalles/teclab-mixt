@@ -52,7 +52,13 @@ c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
 c.DockerSpawner.name_template = "jupyter-{username}"
 c.DockerSpawner.network_name = WORK_NETWORK
 c.DockerSpawner.use_internal_ip = True
-c.DockerSpawner.extra_host_config = {"network_mode": WORK_NETWORK}
+c.DockerSpawner.extra_host_config = {
+    "network_mode": WORK_NETWORK,
+    # El sandbox de Codex CLI (bubblewrap) necessita espais de noms d'usuari sense
+    # privilegis, que el perfil seccomp per defecte de Docker bloqueja. Sense això
+    # Codex no pot executar cap ordre. L'espai continua sense capacitats ni socket.
+    "security_opt": ["seccomp=unconfined"],
+}
 c.DockerSpawner.remove = True  # el contenidor s'esborra en aturar; el home persisteix al volum
 c.DockerSpawner.notebook_dir = "/home/teclab/work"
 c.DockerSpawner.volumes = {"jupyterhub-user-{username}": "/home/teclab"}

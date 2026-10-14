@@ -43,13 +43,17 @@ no s'ha de tocar.
   tenir cap clau d'OpenAI. Només admet l'API Responses (`wire_api = "responses"`; `chat`
   ja no existeix), que LiteLLM serveix a `/v1/responses`. Model per defecte `gpt-6.1-sol`
   (d'OpenAI; el consum compta contra la clau del projecte). Mantén el mode conservador
-  (demana confirmació per a ordres i escriptures): és un sandbox compartit de demo.
+  (`on-request` + `read-only`: demana confirmació per a ordres i escriptures): és un
+  sandbox compartit de demo. Cada torn porta uns 10k tokens de pròleg (~0,03 $ la primera
+  crida, menys després per la memòria cau).
 - **Recursos**: cada espai, 2 vCPU i 3 GiB com a màxim; aturada per inactivitat a 30 min
   a les dues eines. Docker Desktop (WSL2) té 16 GB per a tots els contenidors.
 - **Superfície pública**: JupyterHub va darrere d'oauth2-proxy; Coder té autenticació
   pròpia (excepció acceptada per a la demo).
 - **Socket de Docker**: el reben Coder i JupyterHub (necessari); els espais de treball,
-  mai.
+  mai. L'únic permís extra dels espais és `seccomp=unconfined` (plantilla de Coder i
+  spawner de JupyterHub), imprescindible perquè el sandbox de Codex (bubblewrap, espais
+  de noms d'usuari) funcioni; sense capacitats ni privilegis. Decisió de #11.
 
 ## Flux de treball — OBLIGATORI
 

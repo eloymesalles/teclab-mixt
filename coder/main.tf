@@ -142,6 +142,11 @@ resource "docker_container" "workspace" {
   memory  = 3072
   cpu_set = "0-1"
 
+  # El sandbox de Codex CLI (bubblewrap) necessita espais de noms d'usuari sense
+  # privilegis, que el perfil seccomp per defecte de Docker bloqueja. Sense això Codex
+  # no pot executar cap ordre. L'espai continua sense capacitats ni socket de Docker.
+  security_opts = ["seccomp=unconfined"]
+
   # L'agent de Coder arrenca via l'init script; l'ENTRYPOINT (tini) de la imatge es manté
   command = ["sh", "-c", coder_agent.main.init_script]
   env     = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]

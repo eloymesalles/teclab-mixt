@@ -58,7 +58,8 @@ Detalls al README de l'arrel.
 - `docker_container`: imatge local (sense `docker_image`, per no fer cap pull), `memory =
   3072`, `cpu_set = "0-1"`, xarxes `demo-coder` i `demo-edge` (per arribar a
   `api.mesalles.org`, que resol a Caddy), volum persistent a `/home/teclab`, **sense** socket
-  de Docker.
+  de Docker. `security_opts = ["seccomp=unconfined"]` perquè el sandbox de Codex
+  (bubblewrap) pugui crear espais de noms d'usuari; l'espai continua sense capacitats.
 - `coder_agent`: arrenca code-server (127.0.0.1:13337) i JupyterLab (127.0.0.1:8888 amb el
   `base_url` de l'app) i exposa CPU i RAM. Codex no necessita res a l'arrencada: la seva
   configuració la genera l'embolcall `codex` de la imatge el primer cop que s'executa.

@@ -14,6 +14,8 @@ cap configuració al hub.
   `api.mesalles.org` resolgui a Caddy. `mem_limit 3G`, `cpu_limit 2`, volum
   `jupyterhub-user-<usuari>` a `/home/teclab`, contenidor esborrat en aturar (el home
   persisteix). Entorn: `LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL`.
+  `security_opt: seccomp=unconfined` perquè el sandbox de Codex (bubblewrap) pugui crear
+  espais de noms d'usuari; l'espai continua sense capacitats ni socket.
 - **Autenticació**: `GoogleOAuthenticator` amb el client de Google de l'stack; només els
   correus de `TECLAB_ALLOWED_EMAILS` (el primer és administrador). Redirect URI al client
   de Google: `https://jupyter.mesalles.org/hub/oauth_callback`. A més, a docker-stack el
