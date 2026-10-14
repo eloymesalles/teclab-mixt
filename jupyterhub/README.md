@@ -1,9 +1,11 @@
 # Configuració de JupyterHub «teclab-mixt»
 
 `jupyterhub_config.py` fa que cada usuari tingui un contenidor amb la imatge
-`teclab-mixt:0.1.0` (la mateixa que Coder): JupyterLab a `/home/teclab/work` i, al
+`teclab-mixt:0.2.0` (la mateixa que Coder): JupyterLab a `/home/teclab/work` i, al
 launcher, **VS Code** (code-server via `jupyter-code-server`) i **terminal**. Els exemples
-es copien a `work/examples/` en arrencar.
+es copien a `work/examples/` en arrencar. Al terminal també hi ha **Codex CLI** (`codex`),
+que parla amb la passarel·la amb la clau de l'espai (vegeu el README de l'arrel); no cal
+cap configuració al hub.
 
 ## Com funciona
 
@@ -12,6 +14,8 @@ es copien a `work/examples/` en arrencar.
   `api.mesalles.org` resolgui a Caddy. `mem_limit 3G`, `cpu_limit 2`, volum
   `jupyterhub-user-<usuari>` a `/home/teclab`, contenidor esborrat en aturar (el home
   persisteix). Entorn: `LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL`.
+  `security_opt: seccomp=unconfined` perquè el sandbox de Codex (bubblewrap) pugui crear
+  espais de noms d'usuari; l'espai continua sense capacitats ni socket.
 - **Autenticació**: `GoogleOAuthenticator` amb el client de Google de l'stack; només els
   correus de `TECLAB_ALLOWED_EMAILS` (el primer és administrador). Redirect URI al client
   de Google: `https://jupyter.mesalles.org/hub/oauth_callback`. A més, a docker-stack el
@@ -27,7 +31,7 @@ es copien a `work/examples/` en arrencar.
 | `TECLAB_LITELLM_KEY` | `.env` de docker-stack; va a l'entorn de cada espai com a `LITELLM_KEY` |
 | `TECLAB_ALLOWED_EMAILS` | `.env` de docker-stack, correus separats per comes |
 | `LLM_GOOGLE_CLIENT_ID` / `LLM_GOOGLE_CLIENT_SECRET` | `.env` de docker-stack (client compartit) |
-| `TECLAB_IMAGE` | opcional, per defecte `teclab-mixt:0.1.0` |
+| `TECLAB_IMAGE` | opcional, per defecte `teclab-mixt:0.2.0` (docker-stack la fixa al compose) |
 
 ## Desplegament
 

@@ -16,11 +16,12 @@ imatge per a les dues eines, per demostrar que el codi és portable.
 | `jupyter-server-proxy` + `jupyter-code-server` (VS Code al launcher) | 4.6.0 / 1.2 |
 | code-server (VS Code al navegador) | 4.141.0 |
 | `openai` (client compatible amb la passarel·la) | 3.29.0 |
+| Codex CLI (`@openai/codex`, agent de codi al terminal, via la passarel·la) | 0.162.1 |
 | git, ruff, detect-secrets | — / 0.17.0 / 1.5.0 |
 | PocketBase (binari a `/opt/pocketbase`, no s'engega) | 0.40.5 |
 
 Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
-`/home/teclab/examples`. Mida: uns 2,1 GB.
+`/home/teclab/examples`. Mida: uns 2,2 GB.
 
 ## Variables d'entorn de l'espai
 
@@ -29,6 +30,36 @@ Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
 | `LITELLM_BASE_URL` | `https://api.mesalles.org/v1` (per defecte a la imatge) |
 | `LITELLM_KEY` | Clau virtual creada a `https://api.mesalles.org/ui` → *Virtual Keys*. **La posa l'eina (Coder o JupyterHub) a l'entorn de l'espai; mai a la imatge ni al git.** |
 | `LITELLM_MODEL` | `qwen3:8b` per defecte (model local via Ollama) |
+| `CODEX_MODEL` | `gpt-6.1-sol` per defecte: model que fa servir Codex CLI (d'OpenAI, via la passarel·la) |
+
+## Codex CLI
+
+Al terminal de l'espai (VS Code a Coder, o terminal del launcher a JupyterHub):
+
+```bash
+codex                         # sessió interactiva al directori actual (~/work)
+codex "explica què fa examples/resum.py"
+```
+
+- **Cap a on apunta**: a la passarel·la (`LITELLM_BASE_URL`, `https://api.mesalles.org/v1`)
+  amb la clau de l'espai (`LITELLM_KEY`), **mai** a `api.openai.com`. L'espai no té cap
+  clau d'OpenAI; LiteLLM reenvia la petició a OpenAI amb la seva. Codex només parla l'API
+  Responses, que LiteLLM serveix a `/v1/responses`.
+- **Model**: `gpt-6.1-sol` (el recomanat per OpenAI per a Codex; 2 $/10 $ per milió de
+  tokens d'entrada/sortida). Es canvia amb `CODEX_MODEL` o amb `codex -m <model>`;
+  `gpt-6-luna` és vint vegades més barat però més fluix. **El consum compta contra el
+  pressupost de la clau del projecte** a `https://api.mesalles.org/ui`.
+- **Mode conservador**: `approval_policy = "on-request"` i `sandbox_mode = "read-only"`.
+  Llegeix lliurement, però demana confirmació abans d'executar ordres o escriure fitxers.
+  El sandbox de Linux de Codex és **bubblewrap** i necessita espais de noms d'usuari sense
+  privilegis, que el perfil seccomp per defecte de Docker bloqueja: per això els espais
+  de Coder i de JupyterHub arrenquen amb `seccomp=unconfined` (sense capacitats ni
+  socket, igualment). En un contenidor sense aquesta opció, Codex no pot executar cap
+  ordre (`bwrap: No permissions to create a new namespace`).
+- **Configuració**: `~/.codex/config.toml` el genera l'embolcall `/usr/local/bin/codex`
+  (font: `bin/codex`) el primer cop que s'executa, a partir de `LITELLM_BASE_URL` i
+  `CODEX_MODEL`. No conté cap clau (Codex la llegeix de `LITELLM_KEY` amb `env_key`). Es
+  pot editar; per regenerar-lo, esborra'l.
 
 ## Exemples
 
@@ -41,17 +72,22 @@ contingut no arribi buit.
 ## Construir i provar en local
 
 ```bash
-docker build -t teclab-mixt:0.1.0 .
+docker build -t teclab-mixt:0.2.0 .
 
 # Clau de prova a .env (ignorat per git), vegeu .env.example
 cp .env.example .env   # i omple LITELLM_KEY
 
 # Des del mateix servidor, el domini públic no fa hairpin: resol-lo a l'host, on Caddy escolta
-docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.1.0 \
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.2.0 \
   python /home/teclab/examples/resum.py
 
+# Codex CLI sense interactiu (genera ~/.codex/config.toml i respon); el seccomp és pel sandbox
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway \
+  --security-opt seccomp=unconfined teclab-mixt:0.2.0 \
+  codex exec --skip-git-repo-check "explica en dues frases què fa /home/teclab/examples/resum.py"
+
 # JupyterLab en local (http://localhost:8888)
-docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.1.0
+docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.2.0
 ```
 
 A Git Bash de Windows, afegeix `MSYS_NO_PATHCONV=1` davant de `docker run` perquè no

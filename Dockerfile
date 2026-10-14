@@ -4,6 +4,7 @@ FROM python:3.12.15-slim-bookworm
 
 ARG NODE_VERSION=24.21.0
 ARG CODE_SERVER_VERSION=4.141.0
+ARG CODEX_VERSION=0.162.1
 ARG POCKETBASE_VERSION=0.40.5
 ARG UV_VERSION=0.13.0
 ARG USER=teclab
@@ -35,6 +36,15 @@ RUN curl -fsSL "https://github.com/coder/code-server/releases/download/v${CODE_S
  && ln -s /opt/code-server/bin/code-server /usr/local/bin/code-server \
  && code-server --version
 
+# ── Codex CLI (agent de codi d'OpenAI), apuntat a la passarel·la ──
+# npm deixa el binari a /usr/local/lib/node_modules; l'ordre `codex` és l'embolcall de
+# bin/codex, que genera ~/.codex/config.toml (proveïdor = passarel·la, clau de LITELLM_KEY)
+# el primer cop que s'usa. Cap clau ni configuració amb valors a la imatge.
+RUN npm install -g --no-fund --no-audit "@openai/codex@${CODEX_VERSION}" \
+ && rm -rf /root/.npm /usr/local/bin/codex \
+ && node /usr/local/lib/node_modules/@openai/codex/bin/codex.js --version
+COPY --chmod=755 bin/codex /usr/local/bin/codex
+
 # ── PocketBase (binari, no s'engega per defecte) ──
 RUN curl -fsSL "https://github.com/pocketbase/pocketbase/releases/download/v${POCKETBASE_VERSION}/pocketbase_${POCKETBASE_VERSION}_linux_amd64.zip" -o /tmp/pb.zip \
  && mkdir -p /opt/pocketbase \
@@ -65,7 +75,9 @@ ENV HOME=/home/${USER} \
     SHELL=/bin/bash \
     # Passarel·la LLM (la clau arriba sempre per l'entorn de l'espai, mai per aquí)
     LITELLM_BASE_URL=https://api.mesalles.org/v1 \
-    LITELLM_MODEL=qwen3:8b
+    LITELLM_MODEL=qwen3:8b \
+    # Model que usa Codex CLI (d'OpenAI, via la passarel·la)
+    CODEX_MODEL=gpt-6.1-sol
 
 EXPOSE 8888 8080
 

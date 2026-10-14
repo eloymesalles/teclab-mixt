@@ -1,10 +1,12 @@
 # Plantilla de Coder «teclab-mixt»: un espai de treball per projecte amb VS Code
-# (code-server) i JupyterLab, sobre la imatge compartida amb JupyterHub.
+# (code-server), JupyterLab i Codex CLI al terminal, sobre la imatge compartida amb
+# JupyterHub.
 #
 # Pujar-la (des del contenidor del servidor, CLI autenticada; vegeu README.md):
-#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key"
+#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.2.0"
 #   coder templates edit teclab-mixt --default-ttl 30m -y
-# La clau és una variable de plantilla (Coder la guarda xifrada); mai al codi.
+# La clau és una variable de plantilla (Coder la guarda xifrada); mai al codi. Coder
+# conserva els valors de les variables entre pushes: per canviar d'imatge cal passar-la.
 
 terraform {
   required_providers {
@@ -29,7 +31,7 @@ variable "litellm_key" {
 variable "workspace_image" {
   description = "Imatge d'espai de treball (ha d'existir al daemon de Docker del servidor)."
   type        = string
-  default     = "teclab-mixt:0.1.0"
+  default     = "teclab-mixt:0.2.0"
 }
 
 variable "litellm_base_url" {
@@ -40,6 +42,12 @@ variable "litellm_base_url" {
 variable "litellm_model" {
   type    = string
   default = "qwen3:8b"
+}
+
+variable "codex_model" {
+  description = "Model (d'OpenAI, via la passarel·la) que fa servir Codex CLI al terminal de l'espai."
+  type        = string
+  default     = "gpt-6.1-sol"
 }
 
 # ── Coder ──
@@ -57,6 +65,8 @@ resource "coder_agent" "main" {
     LITELLM_BASE_URL = var.litellm_base_url
     LITELLM_KEY      = var.litellm_key
     LITELLM_MODEL    = var.litellm_model
+    # Codex CLI llegeix la clau de LITELLM_KEY (env_key) i el model d'aquí
+    CODEX_MODEL      = var.codex_model
   }
 
   startup_script = <<-EOT
@@ -132,6 +142,11 @@ resource "docker_container" "workspace" {
   # Límits de la demo: 2 vCPU i 3 GiB
   memory  = 3072
   cpu_set = "0-1"
+
+  # El sandbox de Codex CLI (bubblewrap) necessita espais de noms d'usuari sense
+  # privilegis, que el perfil seccomp per defecte de Docker bloqueja. Sense això Codex
+  # no pot executar cap ordre. L'espai continua sense capacitats ni socket de Docker.
+  security_opts = ["seccomp=unconfined"]
 
   # L'agent de Coder arrenca via l'init script; l'ENTRYPOINT (tini) de la imatge es manté
   command = ["sh", "-c", coder_agent.main.init_script]

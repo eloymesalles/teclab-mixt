@@ -4,7 +4,7 @@ Cada usuari té un contenidor amb la imatge teclab-mixt (la mateixa que Coder), 
 JupyterLab i, al launcher, VS Code (code-server) i terminal. Variables d'entorn que
 llegeix el hub (les posa docker-stack, demo/jupyter):
 
-  TECLAB_IMAGE            imatge d'espai (per defecte teclab-mixt:0.1.0)
+  TECLAB_IMAGE            imatge d'espai (per defecte teclab-mixt:0.2.0)
   TECLAB_LITELLM_KEY      clau virtual de la passarel·la (obligatòria; va a l'entorn de l'espai)
   TECLAB_ALLOWED_EMAILS   correus permesos, separats per comes (el primer és administrador)
   LLM_GOOGLE_CLIENT_ID / LLM_GOOGLE_CLIENT_SECRET   client OAuth de Google
@@ -18,7 +18,7 @@ from oauthenticator.google import GoogleOAuthenticator
 
 c = get_config()  # noqa: F821  (injectat per JupyterHub)
 
-IMAGE = os.environ.get("TECLAB_IMAGE", "teclab-mixt:0.1.0")
+IMAGE = os.environ.get("TECLAB_IMAGE", "teclab-mixt:0.2.0")
 WORK_NETWORK = "demo-jupyter"  # privada: hub i espais
 EDGE_NETWORK = "demo-edge"  # compartida amb Caddy: api.mesalles.org resol a Caddy
 PUBLIC_URL = "https://jupyter.mesalles.org"
@@ -52,7 +52,13 @@ c.DockerSpawner.cmd = ["jupyterhub-singleuser"]
 c.DockerSpawner.name_template = "jupyter-{username}"
 c.DockerSpawner.network_name = WORK_NETWORK
 c.DockerSpawner.use_internal_ip = True
-c.DockerSpawner.extra_host_config = {"network_mode": WORK_NETWORK}
+c.DockerSpawner.extra_host_config = {
+    "network_mode": WORK_NETWORK,
+    # El sandbox de Codex CLI (bubblewrap) necessita espais de noms d'usuari sense
+    # privilegis, que el perfil seccomp per defecte de Docker bloqueja. Sense això
+    # Codex no pot executar cap ordre. L'espai continua sense capacitats ni socket.
+    "security_opt": ["seccomp=unconfined"],
+}
 c.DockerSpawner.remove = True  # el contenidor s'esborra en aturar; el home persisteix al volum
 c.DockerSpawner.notebook_dir = "/home/teclab/work"
 c.DockerSpawner.volumes = {"jupyterhub-user-{username}": "/home/teclab"}
