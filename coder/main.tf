@@ -3,9 +3,10 @@
 # JupyterHub.
 #
 # Pujar-la (des del contenidor del servidor, CLI autenticada; vegeu README.md):
-#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key"
+#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.2.0"
 #   coder templates edit teclab-mixt --default-ttl 30m -y
-# La clau és una variable de plantilla (Coder la guarda xifrada); mai al codi.
+# La clau és una variable de plantilla (Coder la guarda xifrada); mai al codi. Coder
+# conserva els valors de les variables entre pushes: per canviar d'imatge cal passar-la.
 
 terraform {
   required_providers {

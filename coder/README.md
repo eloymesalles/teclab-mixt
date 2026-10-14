@@ -29,8 +29,16 @@ docker compose --env-file .env -f demo/coder/docker-compose.yml exec coder   cod
 ```
 
 Un espai s'atura 30 minuts després de l'última activitat. Per actualitzar la plantilla,
-el mateix `push` (la variable es conserva si no es torna a passar). Els espais existents
-passen a la versió nova de la plantilla (i de la imatge) en actualitzar-los des de la UI.
+el mateix `push`: **Coder conserva els valors de les variables del push anterior** (clau,
+`workspace_image`, `codex_model`) encara que canviï el `default` de `main.tf`, així que
+per canviar d'imatge cal passar-la explícitament:
+
+```bash
+coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.2.0"
+```
+
+Els espais existents passen a la versió nova de la plantilla (i de la imatge) en
+actualitzar-los des de la UI o amb `coder update <espai>`.
 
 ## Crear un espai
 
