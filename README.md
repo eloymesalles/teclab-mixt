@@ -16,6 +16,7 @@ imatge per a les dues eines, per demostrar que el codi és portable.
 | `jupyter-server-proxy` + `jupyter-code-server` (VS Code al launcher) | 4.6.0 / 1.2 |
 | code-server (VS Code al navegador) | 4.141.0 |
 | `openai` (client compatible amb la passarel·la) | 3.29.0 |
+| `psycopg` (driver de PostgreSQL) + client `psql` 16 (PGDG) | 3.3.6 / 16.15 |
 | Codex CLI (`@openai/codex`, agent de codi al terminal, via la passarel·la) | 0.162.1 |
 | git, ruff, detect-secrets | — / 0.17.0 / 1.5.0 |
 | PocketBase (binari a `/opt/pocketbase`, no s'engega) | 0.40.5 |
@@ -31,6 +32,8 @@ Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
 | `LITELLM_KEY` | Clau virtual creada a `https://api.mesalles.org/ui` → *Virtual Keys*. **La posa l'eina (Coder o JupyterHub) a l'entorn de l'espai; mai a la imatge ni al git.** |
 | `LITELLM_MODEL` | `qwen3:8b` per defecte (model local via Ollama) |
 | `CODEX_MODEL` | `gpt-6.1-sol` per defecte: model que fa servir Codex CLI (d'OpenAI, via la passarel·la) |
+| `DATABASE_URL`, `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` | Només a Coder: la base de dades PostgreSQL pròpia de l'espai (sidecar; vegeu `coder/README.md`). A JupyterHub no hi ha base de dades. |
+| `DATA_SOURCE` | `csv` (per defecte) o `postgres`: font de dades d'`examples/dades.py` |
 
 ## Codex CLI
 
@@ -65,6 +68,10 @@ codex "explica què fa examples/resum.py"
 
 - `examples/resum.py`: demana un resum curt a la passarel·la i mostra model, tokens i temps.
 - `examples/resum.ipynb`: el mateix en notebook, més la llista de models disponibles.
+- `examples/dades.py` + `examples/mostra.csv`: adaptador de dades (`carrega_sollicituds()`),
+  que llegeix el CSV sintètic o la taula `sollicituds` de Postgres segons `DATA_SOURCE`;
+  `--carrega` copia el CSV a la taula. Només dades sintètiques o anonimitzades en aquest
+  entorn (ENS mp.sw.1.1; Instrucció 05, apt. 7.2).
 
 `qwen3:8b` és un model de raonament: els exemples usen `max_tokens=1500` perquè el
 contingut no arribi buit.
@@ -72,22 +79,22 @@ contingut no arribi buit.
 ## Construir i provar en local
 
 ```bash
-docker build -t teclab-mixt:0.2.0 .
+docker build -t teclab-mixt:0.3.0 .
 
 # Clau de prova a .env (ignorat per git), vegeu .env.example
 cp .env.example .env   # i omple LITELLM_KEY
 
 # Des del mateix servidor, el domini públic no fa hairpin: resol-lo a l'host, on Caddy escolta
-docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.2.0 \
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.3.0 \
   python /home/teclab/examples/resum.py
 
 # Codex CLI sense interactiu (genera ~/.codex/config.toml i respon); el seccomp és pel sandbox
 docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway \
-  --security-opt seccomp=unconfined teclab-mixt:0.2.0 \
+  --security-opt seccomp=unconfined teclab-mixt:0.3.0 \
   codex exec --skip-git-repo-check "explica en dues frases què fa /home/teclab/examples/resum.py"
 
 # JupyterLab en local (http://localhost:8888)
-docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.2.0
+docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.3.0
 ```
 
 A Git Bash de Windows, afegeix `MSYS_NO_PATHCONV=1` davant de `docker run` perquè no
