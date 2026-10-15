@@ -5,6 +5,7 @@ FROM python:3.12.15-slim-bookworm
 ARG NODE_VERSION=24.21.0
 ARG CODE_SERVER_VERSION=4.141.0
 ARG CODEX_VERSION=0.162.1
+ARG PG_CLIENT_VERSION=16.15-1.pgdg12+2
 ARG POCKETBASE_VERSION=0.40.5
 ARG UV_VERSION=0.13.0
 ARG USER=teclab
@@ -21,6 +22,17 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       ca-certificates curl git openssh-client tini xz-utils unzip procps bash nano less \
  && rm -rf /var/lib/apt/lists/*
+
+# ── Client de PostgreSQL 16 (psql, pg_isready, pg_dump), del repositori oficial PGDG
+#    (Debian bookworm només porta el 15); mateixa versió major que el sidecar de Coder ──
+RUN install -d /usr/share/postgresql-common/pgdg \
+ && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+ && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
+      > /etc/apt/sources.list.d/pgdg.list \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends "postgresql-client-16=${PG_CLIENT_VERSION}" \
+ && rm -rf /var/lib/apt/lists/* \
+ && psql --version && pg_isready --version
 
 # ── Node.js LTS ──
 RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz \
@@ -67,6 +79,8 @@ RUN useradd --create-home --uid ${UID} --shell /bin/bash ${USER} \
  && chown -R ${USER}:${USER} /home/${USER}
 
 COPY --chown=${USER}:${USER} examples/ /home/${USER}/examples/
+# El context de build des de Windows arriba amb bit d'execució; els exemples no en volen
+RUN find /home/${USER}/examples -type f -exec chmod 644 {} +
 
 USER ${USER}
 WORKDIR /home/${USER}/work

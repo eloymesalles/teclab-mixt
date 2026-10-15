@@ -14,15 +14,21 @@ per demostrar que el codi és portable entre els dos.
 
 - `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Codex CLI, `openai`,
   git, ruff, detect-secrets, PocketBase (binari, no s'engega), exemples. **Versions
-  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.2.0` (cada canvi d'imatge puja
-  la versió; docker-stack la fixa als compose i a la plantilla de Coder).
+  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.3.0` (cada canvi d'imatge puja
+  la versió; docker-stack la fixa als compose i a la plantilla de Coder). Porta el client
+  `psql` 16 (repositori PGDG, versió fixada) i `psycopg`.
 - `bin/codex` — embolcall instal·lat a `/usr/local/bin/codex`: genera
   `~/.codex/config.toml` el primer cop (proveïdor `teclab` = passarel·la, `env_key =
   LITELLM_KEY`, `wire_api = "responses"`, model `CODEX_MODEL`, `on-request` +
   `read-only`) i executa el binari de `@openai/codex`.
 - `examples/` — `resum.py` i un notebook que criden la passarel·la LiteLLM
-  (`LITELLM_BASE_URL`, `LITELLM_KEY`) per obtenir una resposta real de l'Ollama local.
-- `coder/` — plantilla Terraform (proveïdor Docker) que usa la imatge.
+  (`LITELLM_BASE_URL`, `LITELLM_KEY`) per obtenir una resposta real de l'Ollama local;
+  `dades.py` + `mostra.csv`, l'adaptador de dades (`DATA_SOURCE=csv|postgres`).
+- `coder/` — plantilla Terraform (proveïdor Docker) que usa la imatge, amb un **sidecar de
+  PostgreSQL per espai** (`docker_container.db`, `pgvector/pgvector` versió fixada,
+  `count = start_count`, xarxa `docker_network` privada i `internal`, `docker_volume.db`
+  persistent, `random_password`; l'app només rep `DATABASE_URL` i les `PG*`). Límits amb
+  `cpus` (quota), mai `cpu_set`.
 - `jupyterhub/` — `jupyterhub_config.py` (DockerSpawner) que usa la imatge.
 
 El desplegament (compose de cada eina, blocs de Caddy, xarxes) viu a `../docker-stack`
@@ -50,6 +56,12 @@ no s'ha de tocar.
   a les dues eines. Docker Desktop (WSL2) té 16 GB per a tots els contenidors.
 - **Superfície pública**: JupyterHub va darrere d'oauth2-proxy; Coder té autenticació
   pròpia (excepció acceptada per a la demo).
+- **Base de dades per espai (Coder)**: el sidecar només viu a la xarxa privada de l'espai
+  (mai a `demo-edge` ni `demo-coder`, cap port publicat); la contrasenya la genera
+  Terraform i viu a l'estat que guarda Coder, mai al codi, als exemples ni al git. El volum
+  `-db` queda lligat a Postgres 16: canviar de major és migrar o esborrar. **Només dades
+  sintètiques o anonimitzades** als espais (ENS mp.sw.1.1; Instrucció 05, apt. 7.2): cap
+  dada de producció.
 - **Socket de Docker**: el reben Coder i JupyterHub (necessari); els espais de treball,
   mai. L'únic permís extra dels espais és `seccomp=unconfined` (plantilla de Coder i
   spawner de JupyterHub), imprescindible perquè el sandbox de Codex (bubblewrap, espais

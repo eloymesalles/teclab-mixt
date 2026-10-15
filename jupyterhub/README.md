@@ -1,7 +1,7 @@
 # Configuració de JupyterHub «teclab-mixt»
 
 `jupyterhub_config.py` fa que cada usuari tingui un contenidor amb la imatge
-`teclab-mixt:0.2.0` (la mateixa que Coder): JupyterLab a `/home/teclab/work` i, al
+`teclab-mixt:0.3.0` (la mateixa que Coder): JupyterLab a `/home/teclab/work` i, al
 launcher, **VS Code** (code-server via `jupyter-code-server`) i **terminal**. Els exemples
 es copien a `work/examples/` en arrencar. Al terminal també hi ha **Codex CLI** (`codex`),
 que parla amb la passarel·la amb la clau de l'espai (vegeu el README de l'arrel); no cal
@@ -31,7 +31,7 @@ cap configuració al hub.
 | `TECLAB_LITELLM_KEY` | `.env` de docker-stack; va a l'entorn de cada espai com a `LITELLM_KEY` |
 | `TECLAB_ALLOWED_EMAILS` | `.env` de docker-stack, correus separats per comes |
 | `LLM_GOOGLE_CLIENT_ID` / `LLM_GOOGLE_CLIENT_SECRET` | `.env` de docker-stack (client compartit) |
-| `TECLAB_IMAGE` | opcional, per defecte `teclab-mixt:0.2.0` (docker-stack la fixa al compose) |
+| `TECLAB_IMAGE` | opcional, per defecte `teclab-mixt:0.3.0` (docker-stack la fixa al compose) |
 
 ## Desplegament
 

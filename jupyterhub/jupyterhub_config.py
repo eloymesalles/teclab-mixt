@@ -4,7 +4,7 @@ Cada usuari té un contenidor amb la imatge teclab-mixt (la mateixa que Coder), 
 JupyterLab i, al launcher, VS Code (code-server) i terminal. Variables d'entorn que
 llegeix el hub (les posa docker-stack, demo/jupyter):
 
-  TECLAB_IMAGE            imatge d'espai (per defecte teclab-mixt:0.2.0)
+  TECLAB_IMAGE            imatge d'espai (per defecte teclab-mixt:0.3.0)
   TECLAB_LITELLM_KEY      clau virtual de la passarel·la (obligatòria; va a l'entorn de l'espai)
   TECLAB_ALLOWED_EMAILS   correus permesos, separats per comes (el primer és administrador)
   LLM_GOOGLE_CLIENT_ID / LLM_GOOGLE_CLIENT_SECRET   client OAuth de Google
@@ -18,7 +18,7 @@ from oauthenticator.google import GoogleOAuthenticator
 
 c = get_config()  # noqa: F821  (injectat per JupyterHub)
 
-IMAGE = os.environ.get("TECLAB_IMAGE", "teclab-mixt:0.2.0")
+IMAGE = os.environ.get("TECLAB_IMAGE", "teclab-mixt:0.3.0")
 WORK_NETWORK = "demo-jupyter"  # privada: hub i espais
 EDGE_NETWORK = "demo-edge"  # compartida amb Caddy: api.mesalles.org resol a Caddy
 PUBLIC_URL = "https://jupyter.mesalles.org"

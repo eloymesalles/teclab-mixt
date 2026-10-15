@@ -8,6 +8,8 @@ jupyter-server-proxy==4.6.0
 jupyter-code-server==1.2
 # Client compatible amb OpenAI per a la passarel·la LiteLLM
 openai==3.29.0
+# Driver de PostgreSQL (sidecar de Coder; examples/dades.py)
+psycopg[binary]==3.3.6
 # Qualitat
 ruff==0.17.0
 detect-secrets==1.5.0
