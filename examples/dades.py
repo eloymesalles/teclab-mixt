@@ -36,7 +36,9 @@ def _des_de_postgres() -> list[dict]:
     import psycopg  # només cal si la font és Postgres
 
     with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
-        files = conn.execute(f"SELECT {', '.join(COLUMNES)} FROM {TAULA} ORDER BY id").fetchall()
+        files = conn.execute(
+            f"SELECT {', '.join(COLUMNES)} FROM {TAULA} ORDER BY id"
+        ).fetchall()
     return [dict(zip(COLUMNES, (str(v) for v in fila))) for fila in files]
 
 
@@ -47,7 +49,9 @@ def carrega_sollicituds() -> list[dict]:
     """Retorna les sol·licituds de la font indicada per DATA_SOURCE (csv per defecte)."""
     font = os.environ.get("DATA_SOURCE", "csv")
     if font not in ADAPTADORS:
-        raise SystemExit(f"DATA_SOURCE={font!r} desconegut; opcions: {', '.join(ADAPTADORS)}")
+        raise SystemExit(
+            f"DATA_SOURCE={font!r} desconegut; opcions: {', '.join(ADAPTADORS)}"
+        )
     return ADAPTADORS[font]()
 
 
@@ -89,7 +93,10 @@ def main() -> int:
     sollicituds = carrega_sollicituds()
     print(f"font: {font}  ·  {len(sollicituds)} sol·licituds")
     for s in sollicituds:
-        print(f"  #{s['id']}  {s['data']}  {s['departament']:<12} {s['tipus']:<12} {s['estat']:<10} {s['import_eur']:>8} €")
+        print(
+            f"  #{s['id']}  {s['data']}  {s['departament']:<12} {s['tipus']:<12} "
+            f"{s['estat']:<10} {s['import_eur']:>8} €"
+        )
     return 0
 
 

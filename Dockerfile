@@ -79,6 +79,8 @@ RUN useradd --create-home --uid ${UID} --shell /bin/bash ${USER} \
  && chown -R ${USER}:${USER} /home/${USER}
 
 COPY --chown=${USER}:${USER} examples/ /home/${USER}/examples/
+# El context de build des de Windows arriba amb bit d'execució; els exemples no en volen
+RUN find /home/${USER}/examples -type f -exec chmod 644 {} +
 
 USER ${USER}
 WORKDIR /home/${USER}/work

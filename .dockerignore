@@ -1,0 +1,9 @@
+# Fora del context de build: secrets locals, git, brossa de Python i el que no va a la imatge
+.env
+.git
+.github
+**/__pycache__
+**/*.pyc
+coder
+jupyterhub
+*.md
