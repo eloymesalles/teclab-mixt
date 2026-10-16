@@ -24,7 +24,11 @@ per demostrar que el codi és portable entre els dos.
 - `examples/` — `resum.py` i un notebook que criden la passarel·la LiteLLM
   (`LITELLM_BASE_URL`, `LITELLM_KEY`) per obtenir una resposta real de l'Ollama local;
   `dades.py` + `mostra.csv`, l'adaptador de dades (`DATA_SOURCE=csv|postgres`).
-- `coder/` — plantilla Terraform (proveïdor Docker) que usa la imatge, amb un **sidecar de
+- `coder/` — plantilla Terraform (proveïdor Docker) que usa la imatge. **És un sandbox
+  genèric per a projectes del Teclab: mai res d'un projecte concret a la plantilla.** Apps:
+  VS Code, JupyterLab i el botó genèric «App» (només si el paràmetre `app_port` de
+  l'espai té valor; ruta `/@usuari/espai/apps/app/`; l'agent exporta `APP_PORT`), per a la
+  UI web del projecte, sigui quin sigui. Amb un **sidecar de
   PostgreSQL per espai** (`docker_container.db`, `pgvector/pgvector` versió fixada,
   `count = start_count`, xarxa `docker_network` privada i `internal`, `docker_volume.db`
   persistent, `random_password`; l'app només rep `DATABASE_URL` i les `PG*`). Límits amb

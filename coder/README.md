@@ -1,8 +1,9 @@
 # Plantilla de Coder «teclab-mixt»
 
 Crea un espai de treball per projecte amb la imatge `teclab-mixt:0.3.0`: **VS Code**
-(code-server) i **JupyterLab** com a apps de l'espai, **Codex CLI** al terminal, una
-**base de dades PostgreSQL pròpia** (sidecar), 2 vCPU i 3 GiB, i les variables de la
+(code-server), **JupyterLab** i, si l'espai indica un port, un botó genèric **App** per a la
+UI web del projecte, **Codex CLI** al terminal, una **base de dades PostgreSQL pròpia**
+(sidecar), 2 vCPU i 3 GiB, i les variables de la
 passarel·la (`LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL`, `CODEX_MODEL`) i de la
 base de dades (`DATABASE_URL`, `PG*`) a l'entorn.
 
@@ -45,7 +46,8 @@ actualitzar-los des de la UI o amb `coder update <espai>`.
 
 ## Crear un espai
 
-Des de la UI: *Templates → teclab-mixt → Create workspace*. L'espai apareix amb dues apps:
+Des de la UI: *Templates → teclab-mixt → Create workspace* (demana el port de l'app web del
+projecte; buit si no en té). L'espai apareix amb dues apps (tres si hi ha port):
 **VS Code** (obre `/home/teclab/work`) i **JupyterLab**. Els exemples són a
 `work/examples/`; `python examples/resum.py` des del terminal de VS Code retorna una
 resposta real de la passarel·la.
@@ -63,6 +65,25 @@ Parla amb la passarel·la amb la clau de l'espai (`LITELLM_KEY`) i el model `COD
 l'espai i el consum compta contra la clau del projecte. Demana confirmació abans de
 cada ordre o escriptura. No és una app de l'espai perquè és un programa de terminal.
 Detalls al README de l'arrel.
+
+### Botó «App»: la UI web del projecte (paràmetre de l'espai)
+
+En crear l'espai, Coder demana el **port de l'app web del projecte** (paràmetre `app_port`,
+buit per defecte). Si s'hi posa un port (p. ex. `8501`), la fitxa té un tercer botó, **App**,
+genèric, que apunta a `127.0.0.1:<port>` sota `/@usuari/espai/apps/app/`; si es deixa buit,
+no hi ha botó. El paràmetre es pot canviar després des de la fitxa de l'espai (*Settings →
+Parameters*) i s'aplica en reiniciar-lo.
+
+La plantilla no sap res de cap projecte; qualsevol app web que es desenvolupi a l'espai
+s'hi veu si compleix el contracte:
+
+- escoltar a `127.0.0.1:$APP_PORT` (l'agent exporta `APP_PORT` amb el valor del paràmetre);
+- servir-se sota la ruta `/@$CODER_WORKSPACE_OWNER_NAME/$CODER_WORKSPACE_NAME/apps/app/`
+  (l'agent exporta aquestes dues variables), com fa JupyterLab amb el seu `base_url`.
+
+Mentre no hi hagi res escoltant, el botó obre un error de connexió. S'arriba pel 443 de
+`coder.mesalles.org`, només el propietari i amb la sessió de Coder: cap port nou ni canvi al
+Caddyfile. Primer projecte que l'usa: `eloymesalles/teclab-notebook` (`./arrenca.sh`).
 
 ### Base de dades de l'espai (sidecar de PostgreSQL)
 
