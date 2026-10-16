@@ -86,7 +86,7 @@ data "coder_parameter" "app_port" {
 }
 
 locals {
-  app_port = trimspace(data.coder_parameter.app_port.value)
+  app_port       = trimspace(data.coder_parameter.app_port.value)
   workspace_name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
   # Nom del sidecar: resol pel DNS de la xarxa privada de l'espai (també amb l'àlies «db»)
   db_name     = "${local.workspace_name}-db"
