@@ -68,7 +68,25 @@ provider "docker" {}
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
 
+# Paràmetre de l'espai (es demana en crear-lo; mutable): port de l'app web del projecte.
+# Buit = sense botó «App».
+data "coder_parameter" "app_port" {
+  name         = "app_port"
+  display_name = "Port de l'app web del projecte"
+  description  = "Si el projecte té una interfície web, el port on escoltarà a 127.0.0.1 (p. ex. 8501) sota la ruta /@usuari/espai/apps/app/. Deixa-ho buit si no en té: no hi haurà botó «App»."
+  type         = "string"
+  default      = ""
+  mutable      = true
+  icon         = "/icon/widgets.svg"
+  order        = 1
+  validation {
+    regex = "^$|^[1-9][0-9]{1,4}$"
+    error = "Un número de port (10-65535) o res."
+  }
+}
+
 locals {
+  app_port = trimspace(data.coder_parameter.app_port.value)
   workspace_name = "coder-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
   # Nom del sidecar: resol pel DNS de la xarxa privada de l'espai (també amb l'àlies «db»)
   db_name     = "${local.workspace_name}-db"
@@ -100,6 +118,8 @@ resource "coder_agent" "main" {
     PGUSER     = local.db_user
     PGPASSWORD = random_password.db.result
     PGDATABASE = local.db_database
+    # Port del botó «App» (buit si no n'hi ha): els projectes hi arrenquen la seva UI web
+    APP_PORT = local.app_port
   }
 
   startup_script = <<-EOT
@@ -167,14 +187,17 @@ resource "coder_app" "jupyterlab" {
 }
 
 # Botó genèric «App»: el port de l'app web del projecte que es desenvolupi a l'espai, sigui
-# quin sigui. Contracte per al projecte: escoltar a 127.0.0.1:8501 sota la ruta
-# /@<propietari>/<espai>/apps/app/ (l'agent exporta CODER_WORKSPACE_OWNER_NAME i
-# CODER_WORKSPACE_NAME). Sense healthcheck: cada projecte té la seva ruta de salut.
+# quin sigui. Només existeix si l'usuari indica un port al paràmetre de l'espai (es pot
+# canviar després des de la fitxa; s'aplica en reiniciar). Contracte per al projecte:
+# escoltar a 127.0.0.1:<port> sota la ruta /@<propietari>/<espai>/apps/app/ (l'agent
+# exporta CODER_WORKSPACE_OWNER_NAME, CODER_WORKSPACE_NAME i APP_PORT). Sense healthcheck:
+# cada projecte té la seva ruta de salut.
 resource "coder_app" "app" {
+  count        = local.app_port == "" ? 0 : 1
   agent_id     = coder_agent.main.id
   slug         = "app"
   display_name = "App"
-  url          = "http://127.0.0.1:8501/@${data.coder_workspace_owner.me.name}/${data.coder_workspace.me.name}/apps/app/"
+  url          = "http://127.0.0.1:${local.app_port}/@${data.coder_workspace_owner.me.name}/${data.coder_workspace.me.name}/apps/app/"
   icon         = "/icon/widgets.svg"
   subdomain    = false
   share        = "owner"
