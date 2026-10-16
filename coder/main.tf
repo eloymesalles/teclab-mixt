@@ -166,6 +166,20 @@ resource "coder_app" "jupyterlab" {
   share        = "owner"
 }
 
+# Botó genèric «App»: el port de l'app web del projecte que es desenvolupi a l'espai, sigui
+# quin sigui. Contracte per al projecte: escoltar a 127.0.0.1:8501 sota la ruta
+# /@<propietari>/<espai>/apps/app/ (l'agent exporta CODER_WORKSPACE_OWNER_NAME i
+# CODER_WORKSPACE_NAME). Sense healthcheck: cada projecte té la seva ruta de salut.
+resource "coder_app" "app" {
+  agent_id     = coder_agent.main.id
+  slug         = "app"
+  display_name = "App"
+  url          = "http://127.0.0.1:8501/@${data.coder_workspace_owner.me.name}/${data.coder_workspace.me.name}/apps/app/"
+  icon         = "/icon/widgets.svg"
+  subdomain    = false
+  share        = "owner"
+}
+
 # ── Docker: xarxa i volums (els volums sobreviuen a les aturades; s'esborren amb l'espai) ──
 
 # Xarxa privada de l'espai: només l'espai i el seu sidecar; internal = sense sortida a

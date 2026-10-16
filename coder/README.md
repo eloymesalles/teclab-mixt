@@ -1,8 +1,9 @@
 # Plantilla de Coder «teclab-mixt»
 
 Crea un espai de treball per projecte amb la imatge `teclab-mixt:0.3.0`: **VS Code**
-(code-server) i **JupyterLab** com a apps de l'espai, **Codex CLI** al terminal, una
-**base de dades PostgreSQL pròpia** (sidecar), 2 vCPU i 3 GiB, i les variables de la
+(code-server), **JupyterLab** i un botó genèric **App** (port 8501 del projecte) com a apps
+de l'espai, **Codex CLI** al terminal, una **base de dades PostgreSQL pròpia** (sidecar),
+2 vCPU i 3 GiB, i les variables de la
 passarel·la (`LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL`, `CODEX_MODEL`) i de la
 base de dades (`DATABASE_URL`, `PG*`) a l'entorn.
 
@@ -63,6 +64,20 @@ Parla amb la passarel·la amb la clau de l'espai (`LITELLM_KEY`) i el model `COD
 l'espai i el consum compta contra la clau del projecte. Demana confirmació abans de
 cada ordre o escriptura. No és una app de l'espai perquè és un programa de terminal.
 Detalls al README de l'arrel.
+
+### Botó «App»: la UI web del projecte
+
+La fitxa de l'espai té un tercer botó, **App**, genèric: apunta al port 8501 sota
+`/@usuari/espai/apps/app/`. La plantilla no sap res de cap projecte; qualsevol app web que
+es desenvolupi a l'espai s'hi veu si compleix el contracte:
+
+- escoltar a `127.0.0.1:8501`;
+- servir-se sota la ruta `/@$CODER_WORKSPACE_OWNER_NAME/$CODER_WORKSPACE_NAME/apps/app/`
+  (l'agent exporta aquestes dues variables), com fa JupyterLab amb el seu `base_url`.
+
+Mentre no hi hagi res escoltant, el botó obre un error de connexió. S'arriba pel 443 de
+`coder.mesalles.org`, només el propietari i amb la sessió de Coder: cap port nou ni canvi al
+Caddyfile. Primer projecte que l'usa: `eloymesalles/teclab-notebook` (`./arrenca.sh`).
 
 ### Base de dades de l'espai (sidecar de PostgreSQL)
 
