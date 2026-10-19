@@ -44,7 +44,9 @@ coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=
 ```
 
 Els espais existents passen a la versió nova de la plantilla (i de la imatge) en
-actualitzar-los des de la UI o amb `coder update <espai>`.
+actualitzar-los des de la UI o amb `coder update <espai>`. Per crear un espai des de la
+CLI cal passar el paràmetre, si no es queda esperant-lo:
+`coder create <espai> -t teclab-mixt -y --parameter app_port=` (buit) o `--parameter app_port=8501`.
 
 ## Crear un espai
 
