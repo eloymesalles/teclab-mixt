@@ -91,7 +91,12 @@ ENV HOME=/home/${USER} \
     LITELLM_BASE_URL=https://api.mesalles.org/v1 \
     LITELLM_MODEL=qwen3:8b \
     # Model que usa Codex CLI (d'OpenAI, via la passarel·la)
-    CODEX_MODEL=gpt-6.1-sol
+    CODEX_MODEL=gpt-6.1-sol \
+    # OpenTelemetry (exemples d'agent): servei buit (la plantilla el posa), exportador OTLP,
+    # endpoint buit = traces no exportades, sense error
+    OTEL_SERVICE_NAME= \
+    OTEL_TRACES_EXPORTER=otlp \
+    OTEL_EXPORTER_OTLP_ENDPOINT=
 
 EXPOSE 8888 8080
 

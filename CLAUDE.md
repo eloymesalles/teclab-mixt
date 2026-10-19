@@ -14,7 +14,7 @@ per demostrar que el codi és portable entre els dos.
 
 - `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Codex CLI, `openai`,
   git, ruff, detect-secrets, PocketBase (binari, no s'engega), exemples. **Versions
-  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.3.0` (cada canvi d'imatge puja
+  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.4.0` (cada canvi d'imatge puja
   la versió; docker-stack la fixa als compose i a la plantilla de Coder). Porta el client
   `psql` 16 (repositori PGDG, versió fixada) i `psycopg`.
 - `bin/codex` — embolcall instal·lat a `/usr/local/bin/codex`: genera
@@ -23,7 +23,15 @@ per demostrar que el codi és portable entre els dos.
   `read-only`) i executa el binari de `@openai/codex`.
 - `examples/` — `resum.py` i un notebook que criden la passarel·la LiteLLM
   (`LITELLM_BASE_URL`, `LITELLM_KEY`) per obtenir una resposta real de l'Ollama local;
-  `dades.py` + `mostra.csv`, l'adaptador de dades (`DATA_SOURCE=csv|postgres`).
+  `dades.py` + `mostra.csv`, l'adaptador de dades (`DATA_SOURCE=csv|postgres`);
+  `agent.py` (Pydantic AI: eines sobre l'adaptador, sortida estructurada, OpenTelemetry) i
+  `agent_langgraph.py` (LangGraph, dos nodes); `examples/README.md` explica quan cadascun.
+- **SDK d'agents a la imatge**: `pydantic-ai-slim[openai]`, `langgraph`, `opentelemetry-sdk`
+  i `opentelemetry-exporter-otlp`, versions fixades. **Mai** SDK de proveïdor (OpenAI Agents,
+  Claude Agent, Google ADK) ni langchain complet: els instal·la el projecte que els necessiti
+  i ho justifica a l'Estudi d'Integració. Els models s'invoquen per **àlies del catàleg**
+  (`LITELLM_MODEL`, per defecte `chat-default` a la plantilla), mai per nom de model.
+  Traces: `OTEL_EXPORTER_OTLP_ENDPOINT` buit a la imatge (sense exportar, sense error).
 - `coder/` — plantilla Terraform (proveïdor Docker) que usa la imatge. **És un sandbox
   genèric per a projectes del Teclab: mai res d'un projecte concret a la plantilla.** Apps:
   VS Code, JupyterLab i el botó genèric «App» (només si el paràmetre `app_port` de
@@ -47,8 +55,8 @@ no s'ha de tocar.
   `.env` ignorat per git.
 - **Passarel·la**: els espais parlen amb `https://api.mesalles.org/v1` (compatible amb
   OpenAI). Dins de Docker, el nom resol a Caddy per la xarxa `demo-edge` (àlies), no a
-  Internet. Model per defecte dels exemples: `qwen3:8b` (model de raonament: cal un
-  `max_tokens` generós o el contingut arriba buit).
+  Internet. Als espais de Coder, `LITELLM_MODEL` és l'àlies `chat-default`; a la imatge sola,
+  `qwen3:8b` (model de raonament: cal un `max_tokens` generós o el contingut arriba buit).
 - **Codex CLI**: apunta sempre a la passarel·la, mai a `api.openai.com`; l'espai no ha de
   tenir cap clau d'OpenAI. Només admet l'API Responses (`wire_api = "responses"`; `chat`
   ja no existeix), que LiteLLM serveix a `/v1/responses`. Model per defecte `gpt-6.1-sol`

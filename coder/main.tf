@@ -4,7 +4,7 @@
 # privada de l'espai.
 #
 # Pujar-la (des del contenidor del servidor, CLI autenticada; vegeu README.md):
-#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.3.0"
+#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.4.0"
 #   coder templates edit teclab-mixt --default-ttl 30m -y
 # La clau és una variable de plantilla (Coder la guarda xifrada); mai al codi. Coder
 # conserva els valors de les variables entre pushes: per canviar d'imatge cal passar-la.
@@ -36,7 +36,7 @@ variable "litellm_key" {
 variable "workspace_image" {
   description = "Imatge d'espai de treball (ha d'existir al daemon de Docker del servidor)."
   type        = string
-  default     = "teclab-mixt:0.3.0"
+  default     = "teclab-mixt:0.4.0"
 }
 
 variable "db_image" {
@@ -51,8 +51,9 @@ variable "litellm_base_url" {
 }
 
 variable "litellm_model" {
-  type    = string
-  default = "qwen3:8b"
+  description = "Àlies del catàleg de la passarel·la que usen els exemples i apps de l'espai (LITELLM_MODEL). L'administració de LiteLLM decideix a quin model apunta."
+  type        = string
+  default     = "chat-default"
 }
 
 variable "codex_model" {
@@ -120,6 +121,9 @@ resource "coder_agent" "main" {
     PGDATABASE = local.db_database
     # Port del botó «App» (buit si no n'hi ha): els projectes hi arrenquen la seva UI web
     APP_PORT = local.app_port
+    # Traces OpenTelemetry dels exemples d'agent: nom del servei = l'espai (l'endpoint OTLP
+    # el posa cada projecte si en té; la imatge el deixa buit)
+    OTEL_SERVICE_NAME = "teclab-${data.coder_workspace_owner.me.name}-${lower(data.coder_workspace.me.name)}"
   }
 
   startup_script = <<-EOT
