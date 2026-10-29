@@ -44,6 +44,30 @@ Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
 | `CODEX_MODEL` | `gpt-6.1-sol` per defecte: model que fa servir Codex CLI (d'OpenAI, via la passarel·la) |
 | `DATABASE_URL`, `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` | Només a Coder: la base de dades PostgreSQL pròpia de l'espai (sidecar; vegeu `coder/README.md`). A JupyterHub no hi ha base de dades. |
 | `DATA_SOURCE` | `csv` (per defecte) o `postgres`: font de dades d'`examples/dades.py` |
+| `TECLAB_CA_CERT` | Ruta del certificat (PEM) de la CA privada del Teclab, muntat al contenidor per la plataforma (Teclab GCP: `/etc/teclab/ca.crt`). Buida a la demo. Vegeu «CA del Teclab» |
+
+## CA del Teclab
+
+Al sandbox de Google Cloud, Coder (`https://plataforma-teclab.uji.es:3443`) i LiteLLM
+(`https://llm-teclab.uji.es:4443`) serveixen per dins amb un certificat signat per una **CA
+privada del Teclab**. L'espai l'ha de verificar com qualsevol altre: **cap `verify=False`,
+cap `curl -k`** enlloc (TLS intern obligatori, ENS mp.com.2).
+
+Ho fa l'script d'entrada `bin/teclab-entrypoint` (`/usr/local/bin/teclab-entrypoint`, executat
+per `tini` abans de l'ordre del contenidor), a partir de `TECLAB_CA_CERT`:
+
+- Si la variable és buida o el fitxer no hi és: **no fa res** (la demo arrenca igual).
+- Si hi és: escriu `~/.teclab/ca-bundle.pem` = CA públiques del sistema + CA del Teclab (l'usuari
+  `teclab` no pot tocar `/etc/ssl`) i exporta, per a tot el que arrenqui dins de l'espai (l'agent
+  de Coder, JupyterLab, terminals): `SSL_CERT_FILE`, `CURL_CA_BUNDLE`, `GIT_SSL_CAINFO` i
+  `REQUESTS_CA_BUNDLE` cap al paquet combinat (OpenSSL, `curl`, `git`, `psql`, Python `ssl`,
+  `httpx`, `requests`, `pip`, `uv`), i `NODE_EXTRA_CA_CERTS` cap a la CA sola (Node l'afegeix
+  als seus: code-server, `npm`, Claude Code). Les variables que la plataforma ja hagi fixat no
+  se sobreescriuen. El paquet combinat és el que fa que les webs públiques continuïn verificant.
+
+Comprovació en local amb una CA de prova (`openssl`): un servidor `https` dins del contenidor
+amb un certificat signat per ella, i `curl`, `httpx`, `requests` i `node -e "fetch(...)"`
+contra ell funcionen amb `TECLAB_CA_CERT` i fallen sense (vegeu la PR de la issue #21).
 
 ## Codex CLI
 

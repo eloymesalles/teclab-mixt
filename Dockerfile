@@ -102,7 +102,11 @@ ENV HOME=/home/${USER} \
 
 EXPOSE 8888 8080
 
-ENTRYPOINT ["tini", "--"]
+# Entrada: si la plataforma passa TECLAB_CA_CERT (ruta del certificat de la CA del Teclab,
+# muntat al contenidor), l'script fa que sistema, Python i Node hi confiïn abans d'executar
+# l'ordre; sense la variable no fa res. La CA no és a la imatge: la munta cada plataforma.
+COPY --chmod=755 bin/teclab-entrypoint /usr/local/bin/teclab-entrypoint
+ENTRYPOINT ["tini", "--", "teclab-entrypoint"]
 # Per defecte, JupyterLab (ús directe o per JupyterHub, que substitueix l'ordre per
 # jupyterhub-singleuser). La plantilla de Coder arrenca code-server des del seu agent.
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser"]
