@@ -20,6 +20,12 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   la versió; docker-stack la fixa als compose i a la plantilla de Coder; al Teclab es fixa
   per empremta al registre `teclab`). Porta el client `psql` 16 (repositori PGDG, versió
   fixada) i `psycopg`.
+- `bin/teclab-entrypoint` — entrada del contenidor (`tini` → script → ordre): si la plataforma
+  passa `TECLAB_CA_CERT` (ruta del certificat de la CA del Teclab muntat al contenidor), escriu
+  `~/.teclab/ca-bundle.pem` (CA públiques + CA del Teclab) i exporta `SSL_CERT_FILE`,
+  `CURL_CA_BUNDLE`, `GIT_SSL_CAINFO`, `REQUESTS_CA_BUNDLE` (paquet combinat) i
+  `NODE_EXTRA_CA_CERTS` (la CA sola). Sense la variable, no fa res. **Cap `verify=False` ni
+  `curl -k` al repo**: la confiança es resol aquí, no amb excepcions.
 - `bin/codex` — embolcall instal·lat a `/usr/local/bin/codex`: genera
   `~/.codex/config.toml` el primer cop (proveïdor `teclab` = passarel·la, `env_key =
   LITELLM_KEY`, `wire_api = "responses"`, model `CODEX_MODEL`, `on-request` +

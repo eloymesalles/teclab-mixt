@@ -1,0 +1,35 @@
+#!/bin/sh
+# Entrada de teclab-mixt (instal·lat a /usr/local/bin/teclab-entrypoint; l'executa tini).
+#
+# Si la plataforma munta el certificat de la CA del Teclab i en passa la ruta a
+# TECLAB_CA_CERT, fa que tot el que arrenqui dins de l'espai hi confiï: eines del sistema
+# (curl, git, psql: OpenSSL), Python (httpx, requests, el client openai) i Node (code-server,
+# npm, Claude Code). L'usuari és teclab (no root) i no pot tocar /etc/ssl: construeix un
+# paquet propi = CA públiques del sistema + CA del Teclab. Cap excepció de verificació enlloc.
+#
+# Sense TECLAB_CA_CERT (o si el fitxer no hi és), no fa res: la demo arrenca igual.
+# Les variables que la plataforma ja hagi fixat no se sobreescriuen.
+set -eu
+
+if [ -n "${TECLAB_CA_CERT:-}" ]; then
+  if [ -r "$TECLAB_CA_CERT" ]; then
+    dir="$HOME/.teclab"
+    paquet="$dir/ca-bundle.pem"
+    mkdir -p "$dir"
+    umask 022
+    cat /etc/ssl/certs/ca-certificates.crt "$TECLAB_CA_CERT" > "$paquet.tmp"
+    mv "$paquet.tmp" "$paquet"
+    # OpenSSL i tot el que s'hi recolza (curl, git, psql, Go, Python ssl/httpx, uv)
+    export SSL_CERT_FILE="${SSL_CERT_FILE:-$paquet}"
+    export CURL_CA_BUNDLE="${CURL_CA_BUNDLE:-$paquet}"
+    export GIT_SSL_CAINFO="${GIT_SSL_CAINFO:-$paquet}"
+    # requests (i pip) porten el seu propi paquet (certifi): cal dir-los el combinat
+    export REQUESTS_CA_BUNDLE="${REQUESTS_CA_BUNDLE:-$paquet}"
+    # Node afegeix aquest fitxer als seus certificats: aquí només la CA del Teclab
+    export NODE_EXTRA_CA_CERTS="${NODE_EXTRA_CA_CERTS:-$TECLAB_CA_CERT}"
+  else
+    echo "teclab-entrypoint: TECLAB_CA_CERT=$TECLAB_CA_CERT no es pot llegir; s'arrenca sense la CA del Teclab" >&2
+  fi
+fi
+
+exec "$@"
