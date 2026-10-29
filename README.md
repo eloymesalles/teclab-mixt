@@ -1,9 +1,16 @@
 # teclab-mixt
 
-Imatge d'espai de treball compartida per a la demo d'avaluació de **Coder** i
-**JupyterHub** al Teclab (laboratori d'IA de la UJI): VS Code al navegador, notebooks,
-Python 3.12, Node LTS i accés a la passarel·la LLM de `api.mesalles.org`. Una sola
-imatge per a les dues eines, per demostrar que el codi és portable.
+Imatge d'espai de treball del Teclab (laboratori d'IA de la UJI): VS Code al navegador,
+notebooks, Python 3.12, Node LTS i accés a una passarel·la LLM (LiteLLM). Una sola imatge
+per a **dues plataformes**, per demostrar que el codi és portable:
+
+- la **demo** de `mesalles.org` (Coder amb Docker i JupyterHub, `../docker-stack`), que es
+  manté com a banc de proves;
+- el **sandbox del Teclab a Google Cloud** (`eloymesalles/teclab-gcp`: Coder amb una màquina
+  virtual per espai i LiteLLM a `llm-teclab.uji.es`).
+
+La imatge **no sap en quina plataforma corre**: l'adreça de la passarel·la, la clau i la
+resta de valors de plataforma arriben sempre per l'entorn de l'espai (taula de sota).
 
 ## Contingut de la imatge
 
@@ -30,9 +37,9 @@ Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
 
 | Variable | Valor |
 |---|---|
-| `LITELLM_BASE_URL` | `https://api.mesalles.org/v1` (per defecte a la imatge) |
-| `LITELLM_KEY` | Clau virtual creada a `https://api.mesalles.org/ui` → *Virtual Keys*. **La posa l'eina (Coder o JupyterHub) a l'entorn de l'espai; mai a la imatge ni al git.** |
-| `LITELLM_MODEL` | **Àlies del catàleg** de la passarel·la, no un model: `chat-default` (variable de la plantilla de Coder; a la imatge, `qwen3:8b` per a proves locals). A quin model apunta ho decideix l'administració de LiteLLM |
+| `LITELLM_BASE_URL` | Adreça de la passarel·la. **Buida a la imatge**: la posa la plataforma. Demo: `https://api.mesalles.org/v1`; Teclab GCP: `https://llm-teclab.uji.es:4443/v1` (nom privat de la VPC, certificat de la CA del Teclab) |
+| `LITELLM_KEY` | Clau virtual creada a l'administració de LiteLLM de la plataforma (*Virtual Keys*). **La posa l'eina (Coder o JupyterHub) a l'entorn de l'espai; mai a la imatge ni al git.** |
+| `LITELLM_MODEL` | **Àlies del catàleg** de la passarel·la, no un model: `chat-default` (per defecte a la imatge, igual a les dues plataformes). A quin model apunta ho decideix l'administració de LiteLLM |
 | `OTEL_SERVICE_NAME`, `OTEL_TRACES_EXPORTER`, `OTEL_EXPORTER_OTLP_ENDPOINT` | Traces OpenTelemetry dels exemples d'agent: nom del servei (la plantilla el posa, `teclab-<propietari>-<espai>`), exportador `otlp`, endpoint buit per defecte (sense exportar) |
 | `CODEX_MODEL` | `gpt-6.1-sol` per defecte: model que fa servir Codex CLI (d'OpenAI, via la passarel·la) |
 | `DATABASE_URL`, `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` | Només a Coder: la base de dades PostgreSQL pròpia de l'espai (sidecar; vegeu `coder/README.md`). A JupyterHub no hi ha base de dades. |
@@ -47,14 +54,14 @@ codex                         # sessió interactiva al directori actual (~/work)
 codex "explica què fa examples/resum.py"
 ```
 
-- **Cap a on apunta**: a la passarel·la (`LITELLM_BASE_URL`, `https://api.mesalles.org/v1`)
+- **Cap a on apunta**: a la passarel·la de la plataforma (`LITELLM_BASE_URL`, obligatòria)
   amb la clau de l'espai (`LITELLM_KEY`), **mai** a `api.openai.com`. L'espai no té cap
   clau d'OpenAI; LiteLLM reenvia la petició a OpenAI amb la seva. Codex només parla l'API
   Responses, que LiteLLM serveix a `/v1/responses`.
 - **Model**: `gpt-6.1-sol` (el recomanat per OpenAI per a Codex; 2 $/10 $ per milió de
   tokens d'entrada/sortida). Es canvia amb `CODEX_MODEL` o amb `codex -m <model>`;
   `gpt-6-luna` és vint vegades més barat però més fluix. **El consum compta contra el
-  pressupost de la clau del projecte** a `https://api.mesalles.org/ui`.
+  pressupost de la clau del projecte** a l'administració de LiteLLM de la plataforma.
 - **Mode conservador**: `approval_policy = "on-request"` i `sandbox_mode = "read-only"`.
   Llegeix lliurement, però demana confirmació abans d'executar ordres o escriure fitxers.
   El sandbox de Linux de Codex és **bubblewrap** i necessita espais de noms d'usuari sense
@@ -85,28 +92,31 @@ codex "explica què fa examples/resum.py"
 Els SDK de proveïdor (OpenAI Agents SDK, Claude Agent SDK, Google ADK) **no** són a la imatge:
 si un projecte els necessita, els instal·la ell i ho justifica a l'Estudi d'Integració.
 
-`qwen3:8b` és un model de raonament: `resum.py` usa `max_tokens=1500` perquè el contingut
-no arribi buit.
+Si l'àlies apunta a un model de raonament (a la demo, `qwen3:8b`), `resum.py` usa
+`max_tokens=1500` perquè el contingut no arribi buit.
 
 ## Construir i provar en local
 
 ```bash
-docker build -t teclab-mixt:0.4.0 .
+docker build -t teclab-mixt:0.5.0 .
 
-# Clau de prova a .env (ignorat per git), vegeu .env.example
-cp .env.example .env   # i omple LITELLM_KEY
+# Passarel·la i clau de prova a .env (ignorat per git), vegeu .env.example
+cp .env.example .env   # i omple LITELLM_BASE_URL i LITELLM_KEY
 
-# Des del mateix servidor, el domini públic no fa hairpin: resol-lo a l'host, on Caddy escolta
-docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.4.0 \
+# Sense les variables, els exemples diuen quina falta i surten (codi 2)
+docker run --rm teclab-mixt:0.5.0 python /home/teclab/examples/resum.py
+
+# Demo, des del mateix servidor: el domini públic no fa hairpin, resol-lo a l'host (Caddy)
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.5.0 \
   python /home/teclab/examples/resum.py
 
 # Codex CLI sense interactiu (genera ~/.codex/config.toml i respon); el seccomp és pel sandbox
 docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway \
-  --security-opt seccomp=unconfined teclab-mixt:0.4.0 \
+  --security-opt seccomp=unconfined teclab-mixt:0.5.0 \
   codex exec --skip-git-repo-check "explica en dues frases què fa /home/teclab/examples/resum.py"
 
 # JupyterLab en local (http://localhost:8888)
-docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.4.0
+docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.5.0
 ```
 
 A Git Bash de Windows, afegeix `MSYS_NO_PATHCONV=1` davant de `docker run` perquè no
@@ -114,7 +124,12 @@ reescrigui les rutes `/home/...`.
 
 ## Desplegament
 
-Els compose de Coder i JupyterHub, els blocs de Caddy i les xarxes viuen a
-`../docker-stack` (`demo/coder/`, `demo/jupyter/`). Dins de Docker, `api.mesalles.org`
-resol a Caddy per la xarxa `demo-edge`. La plantilla de Coder és a `coder/` i la
-configuració de JupyterHub a `jupyterhub/` (issues a part).
+- **Demo** (`mesalles.org`): els compose de Coder i JupyterHub, els blocs de Caddy i les
+  xarxes viuen a `../docker-stack` (`demo/coder/`, `demo/jupyter/`). Dins de Docker,
+  `api.mesalles.org` resol a Caddy per la xarxa `demo-edge`. La plantilla de Coder (proveïdor
+  Docker) és a `coder/` i la configuració de JupyterHub a `jupyterhub/`; totes dues posen
+  `LITELLM_BASE_URL` a l'entorn de l'espai.
+- **Sandbox del Teclab a Google Cloud**: `eloymesalles/teclab-gcp` (Terraform, GitHub
+  Actions). La plantilla de Coder per a màquines virtuals (`coder-template-gce/`, pendent) hi
+  posa la passarel·la privada, la clau virtual del projecte i la CA del Teclab. La imatge s'hi
+  publicarà al registre `teclab` des d'aquest repo (workflow pendent).

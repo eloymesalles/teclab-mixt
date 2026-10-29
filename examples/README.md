@@ -22,8 +22,9 @@ python examples/agent_langgraph.py "quantes sol·licituds hi ha pendents?"
 `LITELLM_MODEL` és un **àlies** de la passarel·la (`chat-default`), no el nom d'un model. A
 quin model apunta ho decideix l'administració de la passarel·la (avui `gemini-2.5-flash`):
 canviar-lo no toca cap espai ni cap codi. Al registre de LiteLLM el consum surt amb la clau
-de l'espai i el model real. Per a un altre model del catàleg, `LITELLM_MODEL=qwen3:8b` (local,
-gratuït, lent sense GPU) o qualsevol altre de `GET $LITELLM_BASE_URL/models`.
+de l'espai i el model real. Per a un altre model del catàleg, qualsevol de
+`GET $LITELLM_BASE_URL/models` (a la demo, per exemple `qwen3:8b`: local, gratuït, lent sense
+GPU).
 
 ## Quan Pydantic AI i quan LangGraph
 
