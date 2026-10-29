@@ -3,9 +3,10 @@
 `jupyterhub_config.py` fa que cada usuari tingui un contenidor amb la imatge
 `teclab-mixt:0.3.0` (la mateixa que Coder): JupyterLab a `/home/teclab/work` i, al
 launcher, **VS Code** (code-server via `jupyter-code-server`) i **terminal**. Els exemples
-es copien a `work/examples/` en arrencar. Al terminal també hi ha **Codex CLI** (`codex`),
-que parla amb la passarel·la amb la clau de l'espai (vegeu el README de l'arrel); no cal
-cap configuració al hub.
+es copien a `work/examples/` en arrencar. Al terminal també hi ha **Claude Code**
+(`claude-compte`, amb la llicència de Claude de la UJI; `claude` per la passarel·la només si
+el hub posa `CLAUDE_MODEL_SONNET` i la passarel·la té models de Claude, cosa que la demo no
+té); vegeu el README de l'arrel; no cal cap configuració al hub.
 
 ## Com funciona
 
@@ -13,9 +14,9 @@ cap configuració al hub.
   xarxa privada `demo-jupyter` i, després d'arrencar, connexió a `demo-edge` perquè
   `api.mesalles.org` resolgui a Caddy. `mem_limit 3G`, `cpu_limit 2`, volum
   `jupyterhub-user-<usuari>` a `/home/teclab`, contenidor esborrat en aturar (el home
-  persisteix). Entorn: `LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL`.
-  `security_opt: seccomp=unconfined` perquè el sandbox de Codex (bubblewrap) pugui crear
-  espais de noms d'usuari; l'espai continua sense capacitats ni socket.
+  persisteix). Entorn: `LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL`. Cap permís
+  extra (el `seccomp=unconfined` del sandbox de Codex ja no cal); l'espai continua sense
+  capacitats ni socket.
 - **Autenticació**: `GoogleOAuthenticator` amb el client de Google de l'stack; només els
   correus de `TECLAB_ALLOWED_EMAILS` (el primer és administrador). Redirect URI al client
   de Google: `https://jupyter.mesalles.org/hub/oauth_callback`. A més, a docker-stack el

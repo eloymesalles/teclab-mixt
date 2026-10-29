@@ -2,10 +2,10 @@
 
 Crea un espai de treball per projecte amb la imatge `teclab-mixt:0.4.0`: **VS Code**
 (code-server), **JupyterLab** i, si l'espai indica un port, un botó genèric **App** per a la
-UI web del projecte, **Codex CLI** al terminal, una **base de dades PostgreSQL pròpia**
+UI web del projecte, **Claude Code** al terminal, una **base de dades PostgreSQL pròpia**
 (sidecar), 2 vCPU i 3 GiB, i les variables de la
 passarel·la (`LITELLM_BASE_URL`, `LITELLM_KEY`, `LITELLM_MODEL` = àlies `chat-default`,
-`CODEX_MODEL`), de la base de dades (`DATABASE_URL`, `PG*`) i de traces
+`CLAUDE_MODEL_SONNET`, `CLAUDE_MODEL_HAIKU`), de la base de dades (`DATABASE_URL`, `PG*`) i de traces
 (`OTEL_SERVICE_NAME` = `teclab-<propietari>-<espai>`) a l'entorn. `litellm_model` és
 variable de plantilla: l'administració pot canviar l'àlies sense tocar cap espai.
 
@@ -36,7 +36,7 @@ docker compose --env-file .env -f demo/coder/docker-compose.yml exec coder   cod
 
 Un espai s'atura 30 minuts després de l'última activitat. Per actualitzar la plantilla,
 el mateix `push`: **Coder conserva els valors de les variables del push anterior** (clau,
-`workspace_image`, `codex_model`) encara que canviï el `default` de `main.tf`, així que
+`workspace_image`, `claude_model_*`) encara que canviï el `default` de `main.tf`, així que
 per canviar d'imatge cal passar-la explícitament:
 
 ```bash
@@ -56,19 +56,21 @@ projecte; buit si no en té). L'espai apareix amb dues apps (tres si hi ha port)
 `work/examples/`; `python examples/resum.py` des del terminal de VS Code retorna una
 resposta real de la passarel·la.
 
-### Codex CLI
+### Claude Code
 
 Al terminal de VS Code (`Terminal → New Terminal`, ja a `~/work`):
 
 ```bash
-codex "explica què fa examples/resum.py"
+claude "explica què fa examples/resum.py"     # per la passarel·la, amb la clau de l'espai
+claude-compte                                 # amb la llicència de Claude de la UJI (/login)
 ```
 
-Parla amb la passarel·la amb la clau de l'espai (`LITELLM_KEY`) i el model `CODEX_MODEL`
-(`gpt-6.1-sol`, variable `codex_model` de la plantilla); no hi ha cap clau d'OpenAI a
-l'espai i el consum compta contra la clau del projecte. Demana confirmació abans de
-cada ordre o escriptura. No és una app de l'espai perquè és un programa de terminal.
-Detalls al README de l'arrel.
+`claude` parla amb la passarel·la amb la clau de l'espai (`LITELLM_KEY`) i els models de
+`claude_model_sonnet` / `claude_model_haiku` (variables de la plantilla; **buides a la demo**,
+que no té models de Claude a la seva passarel·la: allà `claude` avisa i surt, i `claude-compte`
+funciona). No hi ha cap clau d'Anthropic a l'espai; el consum de `claude` compta contra la
+clau del projecte. Demana confirmació abans de cada ordre o escriptura. No és una app de
+l'espai perquè és un programa de terminal. Detalls al README de l'arrel.
 
 ### Botó «App»: la UI web del projecte (paràmetre de l'espai)
 
@@ -135,14 +137,13 @@ imatge `-pg17`) requereix migrar les dades (`pg_dump` / `pg_restore`) o esborrar
 - `docker_container.workspace`: imatge local (sense `docker_image`, per no fer cap pull),
   `memory = 3072`, `cpus = "2"` (quota, no afinitat de nuclis), xarxes `demo-coder`,
   `demo-edge` (per arribar a `api.mesalles.org`, que resol a Caddy) i la privada de l'espai,
-  volum persistent a `/home/teclab`, **sense** socket de Docker, `depends_on` del sidecar.
-  `security_opts = ["seccomp=unconfined"]` perquè el sandbox de Codex (bubblewrap) pugui
-  crear espais de noms d'usuari; l'espai continua sense capacitats.
+  volum persistent a `/home/teclab`, **sense** socket de Docker ni cap permís extra (el
+  `seccomp=unconfined` del sandbox de Codex ja no cal), `depends_on` del sidecar.
 - `docker_container.db`: el sidecar (`count = start_count`, com l'espai), `cpus = "0.5"`,
   `memory = memory_swap = 512`, healthcheck `pg_isready` i `wait = true`; `docker_network`
   privada per espai (`internal`); `docker_volume.db` amb `ignore_changes = all`;
   `random_password.db`; `coder_metadata` amb la fitxa (sense contrasenya).
 - `coder_agent`: arrenca code-server (127.0.0.1:13337) i JupyterLab (127.0.0.1:8888 amb el
-  `base_url` de l'app) i exposa CPU i RAM. Codex no necessita res a l'arrencada: la seva
-  configuració la genera l'embolcall `codex` de la imatge el primer cop que s'executa.
+  `base_url` de l'app) i exposa CPU i RAM. Claude Code no necessita res a l'arrencada: els
+  embolcalls `claude` i `claude-compte` de la imatge llegeixen l'entorn en executar-se.
 - Les apps són *path-based* (`/@usuari/espai/apps/...`): no cal cap subdomini comodí.

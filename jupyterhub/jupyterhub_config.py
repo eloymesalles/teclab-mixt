@@ -54,10 +54,8 @@ c.DockerSpawner.network_name = WORK_NETWORK
 c.DockerSpawner.use_internal_ip = True
 c.DockerSpawner.extra_host_config = {
     "network_mode": WORK_NETWORK,
-    # El sandbox de Codex CLI (bubblewrap) necessita espais de noms d'usuari sense
-    # privilegis, que el perfil seccomp per defecte de Docker bloqueja. Sense això
-    # Codex no pot executar cap ordre. L'espai continua sense capacitats ni socket.
-    "security_opt": ["seccomp=unconfined"],
+    # Cap permís extra: el seccomp=unconfined que demanava el sandbox de Codex ja no cal
+    # amb Claude Code. L'espai continua sense capacitats ni socket.
 }
 c.DockerSpawner.remove = True  # el contenidor s'esborra en aturar; el home persisteix al volum
 c.DockerSpawner.notebook_dir = "/home/teclab/work"
