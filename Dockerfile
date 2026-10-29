@@ -6,6 +6,8 @@ ARG NODE_VERSION=24.21.0
 ARG CODE_SERVER_VERSION=4.141.0
 ARG CLAUDE_CODE_VERSION=2.1.300
 ARG PG_CLIENT_VERSION=16.15-1.pgdg12+2
+ARG GH_VERSION=2.102.0
+ARG GH_SHA256=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0
 ARG POCKETBASE_VERSION=0.40.5
 ARG UV_VERSION=0.13.0
 ARG USER=teclab
@@ -33,6 +35,15 @@ RUN install -d /usr/share/postgresql-common/pgdg \
  && apt-get install -y --no-install-recommends "postgresql-client-16=${PG_CLIENT_VERSION}" \
  && rm -rf /var/lib/apt/lists/* \
  && psql --version && pg_isready --version
+
+# ── CLI de GitHub (gh): paquet .deb oficial de la release, suma verificada (la de
+#    gh_<versió>_checksums.txt de la mateixa release). Cada persona s'autentica a mà
+#    (gh auth login, codi de dispositiu); cap token a la imatge ──
+RUN curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.deb" -o /tmp/gh.deb \
+ && echo "${GH_SHA256}  /tmp/gh.deb" | sha256sum -c - \
+ && dpkg -i /tmp/gh.deb \
+ && rm /tmp/gh.deb \
+ && gh --version
 
 # ── Node.js LTS ──
 RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz \
