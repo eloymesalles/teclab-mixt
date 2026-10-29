@@ -28,6 +28,7 @@ resta de valors de plataforma arriben sempre per l'entorn de l'espai (taula de s
 | `pydantic-ai-slim[openai]` + `langgraph` (SDK d'agents; vegeu `examples/README.md`) | 2.54.0 / 1.2.12 |
 | `opentelemetry-sdk` + `opentelemetry-exporter-otlp` (traces dels agents) | 1.45.0 |
 | git, ruff, detect-secrets | — / 0.17.0 / 1.5.0 |
+| `gh` (CLI de GitHub; `gh auth login` per codi de dispositiu, cadascú el seu) | 2.102.0 |
 | PocketBase (binari a `/opt/pocketbase`, no s'engega) | 0.40.5 |
 
 Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
@@ -107,6 +108,21 @@ claude-compte                  # amb la LLICÈNCIA DE CLAUDE DE LA UJI de l'usua
 - **Mode conservador**: per defecte Claude Code demana confirmació abans d'editar fitxers o
   executar ordres. No necessita cap permís extra del contenidor (el sandbox de Codex, que
   requeria `seccomp=unconfined`, ja no hi és).
+
+## GitHub des de l'espai (`gh`)
+
+La CLI de GitHub és a la imatge (versió fixada, paquet `.deb` oficial amb la suma verificada).
+Cada persona s'hi autentica a mà, una vegada per espai, des del terminal:
+
+```bash
+gh auth login        # GitHub.com → HTTPS → «Login with a web browser»: mostra un codi i una
+                     # adreça; s'obre al navegador del portàtil, s'hi escriu el codi, i llest
+gh auth setup-git    # perquè git push/pull per HTTPS facin servir la mateixa sessió
+gh repo clone eloymesalles/teclab-notebook
+```
+
+La credencial queda a `~/.config/gh/` (disc persistent de l'espai), mai a la imatge ni al git.
+`gh auth status` diu amb qui s'està; `gh auth logout` ho desfà.
 
 ## Exemples
 

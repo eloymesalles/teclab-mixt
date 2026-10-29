@@ -15,7 +15,9 @@ en quina plataforma corre**: cap adreça, nom de màquina ni model de cap plataf
 imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espai.
 
 - `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Claude Code, `openai`,
-  git, ruff, detect-secrets, PocketBase (binari, no s'engega), exemples. **Versions
+  git, `gh` (CLI de GitHub, `.deb` oficial amb suma verificada; autenticació a mà de cada
+  persona amb `gh auth login`), ruff, detect-secrets, PocketBase (binari, no s'engega),
+  exemples. **Versions
   fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.5.0` (cada canvi d'imatge puja
   la versió; docker-stack la fixa als compose i a la plantilla de Coder; al Teclab es fixa
   per empremta al registre `teclab`). Porta el client `psql` 16 (repositori PGDG, versió
