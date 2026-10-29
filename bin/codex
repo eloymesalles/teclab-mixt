@@ -11,6 +11,12 @@ set -eu
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 CFG="$CODEX_HOME/config.toml"
 
+# L'adreça de la passarel·la depèn de la plataforma (demo o Teclab): la imatge no en té cap.
+if [ -z "${LITELLM_BASE_URL:-}" ]; then
+  echo "codex: falta LITELLM_BASE_URL a l'entorn de l'espai (la posa Coder o JupyterHub)" >&2
+  exit 2
+fi
+
 if [ ! -e "$CFG" ]; then
   mkdir -p "$CODEX_HOME"
   umask 077
@@ -34,7 +40,7 @@ enabled = false
 # Passarel·la Teclab. Codex només parla l'API Responses, que LiteLLM serveix a /v1/responses.
 [model_providers.teclab]
 name = "Passarel·la Teclab (LiteLLM)"
-base_url = "${LITELLM_BASE_URL:-https://api.mesalles.org/v1}"
+base_url = "${LITELLM_BASE_URL}"
 env_key = "LITELLM_KEY"
 wire_api = "responses"
 

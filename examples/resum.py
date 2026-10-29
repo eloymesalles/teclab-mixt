@@ -1,9 +1,9 @@
 """Exemple de la demo: demana un resum a la passarel·la LLM (LiteLLM, API compatible amb OpenAI).
 
-Llegeix de l'entorn:
-  LITELLM_BASE_URL  (per defecte https://api.mesalles.org/v1)
+Llegeix de l'entorn (la posa la plataforma a l'espai; cap valor incrustat aquí):
+  LITELLM_BASE_URL  (adreça de la passarel·la; obligatòria)
   LITELLM_KEY       (clau virtual creada a la UI de LiteLLM; obligatòria)
-  LITELLM_MODEL     (per defecte qwen3:8b, un model local servit per Ollama)
+  LITELLM_MODEL     (àlies del catàleg; per defecte chat-default)
 
 Ús:  python resum.py [text a resumir | ruta d'un fitxer .txt]
 """
@@ -26,12 +26,17 @@ TEXT_PER_DEFECTE = (
 
 
 def main() -> int:
-    base_url = os.environ.get("LITELLM_BASE_URL", "https://api.mesalles.org/v1")
-    key = os.environ.get("LITELLM_KEY")
-    model = os.environ.get("LITELLM_MODEL", "qwen3:8b")
-    if not key:
-        print("Cal la variable d'entorn LITELLM_KEY (clau virtual de la passarel·la).", file=sys.stderr)
-        return 2
+    base_url = os.environ.get("LITELLM_BASE_URL", "").strip()
+    key = os.environ.get("LITELLM_KEY", "").strip()
+    model = os.environ.get("LITELLM_MODEL", "").strip() or "chat-default"
+    for nom, valor in (("LITELLM_BASE_URL", base_url), ("LITELLM_KEY", key)):
+        if not valor:
+            print(
+                f"Falta la variable d'entorn {nom}. La posa la plataforma (Coder o JupyterHub) "
+                "a l'entorn de l'espai; per a proves locals, vegeu .env.example.",
+                file=sys.stderr,
+            )
+            return 2
 
     arg = sys.argv[1] if len(sys.argv) > 1 else ""
     if arg and Path(arg).is_file():
@@ -47,7 +52,7 @@ def main() -> int:
             {"role": "system", "content": "Ets un assistent que resumeix textos en català, en dues frases com a màxim."},
             {"role": "user", "content": f"Resumeix aquest text:\n\n{text}"},
         ],
-        # Els models de raonament (qwen3) gasten tokens pensant: cal marge
+        # Els models de raonament gasten tokens pensant: cal marge
         max_tokens=1500,
         temperature=0.3,
     )

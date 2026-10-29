@@ -87,9 +87,11 @@ WORKDIR /home/${USER}/work
 ENV HOME=/home/${USER} \
     PATH=/home/${USER}/.local/bin:${PATH} \
     SHELL=/bin/bash \
-    # Passarel·la LLM (la clau arriba sempre per l'entorn de l'espai, mai per aquí)
-    LITELLM_BASE_URL=https://api.mesalles.org/v1 \
-    LITELLM_MODEL=qwen3:8b \
+    # Passarel·la LLM: la imatge serveix dues plataformes (la demo i el sandbox del Teclab a
+    # Google Cloud) i no sap quina. L'adreça i la clau les posa SEMPRE la plataforma a
+    # l'entorn de l'espai; aquí només l'àlies del catàleg, igual a totes dues.
+    LITELLM_BASE_URL= \
+    LITELLM_MODEL=chat-default \
     # Model que usa Codex CLI (d'OpenAI, via la passarel·la)
     CODEX_MODEL=gpt-6.1-sol \
     # OpenTelemetry (exemples d'agent): servei buit (la plantilla el posa), exportador OTLP,

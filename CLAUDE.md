@@ -6,23 +6,26 @@ sistema) s'apliquen sempre; aquí només hi ha el que és específic del project
 
 ## Què és
 
-Imatge d'espai de treball **`teclab-mixt`** per a la demo d'avaluació de dos entorns
-d'escriptori gestionats al Teclab (laboratori d'IA de la UJI): **Coder** i
-**JupyterHub**, de costat, a `coder.mesalles.org` i `jupyter.mesalles.org`. Una sola
-imatge que els dos fan servir (plantilla de Coder i *single-user image* de JupyterHub)
-per demostrar que el codi és portable entre els dos.
+Imatge d'espai de treball **`teclab-mixt`** del Teclab (laboratori d'IA de la UJI), compartida
+per **dues plataformes**: la **demo** de `mesalles.org` (**Coder** amb Docker i **JupyterHub**,
+a `coder.mesalles.org` i `jupyter.mesalles.org`; es manté com a banc de proves) i el **sandbox
+del Teclab a Google Cloud** (`eloymesalles/teclab-gcp`: Coder amb una VM per espai, LiteLLM a
+`llm-teclab.uji.es`). Una sola imatge per demostrar que el codi és portable. **La imatge no sap
+en quina plataforma corre**: cap adreça, nom de màquina ni model de cap plataforma cuit a la
+imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espai.
 
 - `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Codex CLI, `openai`,
   git, ruff, detect-secrets, PocketBase (binari, no s'engega), exemples. **Versions
-  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.4.0` (cada canvi d'imatge puja
-  la versió; docker-stack la fixa als compose i a la plantilla de Coder). Porta el client
-  `psql` 16 (repositori PGDG, versió fixada) i `psycopg`.
+  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.5.0` (cada canvi d'imatge puja
+  la versió; docker-stack la fixa als compose i a la plantilla de Coder; al Teclab es fixa
+  per empremta al registre `teclab`). Porta el client `psql` 16 (repositori PGDG, versió
+  fixada) i `psycopg`.
 - `bin/codex` — embolcall instal·lat a `/usr/local/bin/codex`: genera
   `~/.codex/config.toml` el primer cop (proveïdor `teclab` = passarel·la, `env_key =
   LITELLM_KEY`, `wire_api = "responses"`, model `CODEX_MODEL`, `on-request` +
   `read-only`) i executa el binari de `@openai/codex`.
 - `examples/` — `resum.py` i un notebook que criden la passarel·la LiteLLM
-  (`LITELLM_BASE_URL`, `LITELLM_KEY`) per obtenir una resposta real de l'Ollama local;
+  (`LITELLM_BASE_URL`, `LITELLM_KEY`, obligatòries: surten amb missatge si falten);
   `dades.py` + `mostra.csv`, l'adaptador de dades (`DATA_SOURCE=csv|postgres`);
   `agent.py` (Pydantic AI: eines sobre l'adaptador, sortida estructurada, OpenTelemetry) i
   `agent_langgraph.py` (LangGraph, dos nodes); `examples/README.md` explica quan cadascun.
@@ -53,10 +56,12 @@ no s'ha de tocar.
 - **Secrets**: la clau de LiteLLM arriba com a variable d'entorn de l'espai
   (`LITELLM_KEY`); mai al Dockerfile, als exemples ni al git. Per a proves locals, un
   `.env` ignorat per git.
-- **Passarel·la**: els espais parlen amb `https://api.mesalles.org/v1` (compatible amb
-  OpenAI). Dins de Docker, el nom resol a Caddy per la xarxa `demo-edge` (àlies), no a
-  Internet. Als espais de Coder, `LITELLM_MODEL` és l'àlies `chat-default`; a la imatge sola,
-  `qwen3:8b` (model de raonament: cal un `max_tokens` generós o el contingut arriba buit).
+- **Passarel·la**: compatible amb OpenAI; l'adreça la posa la plataforma (`LITELLM_BASE_URL`
+  buida a la imatge). Demo: `https://api.mesalles.org/v1` (dins de Docker, el nom resol a
+  Caddy per la xarxa `demo-edge`, no a Internet). Teclab GCP: `https://llm-teclab.uji.es:4443/v1`
+  (nom privat, CA del Teclab). `LITELLM_MODEL` és l'àlies `chat-default` a tot arreu; si
+  apunta a un model de raonament (a la demo, `qwen3:8b`) cal un `max_tokens` generós o el
+  contingut arriba buit.
 - **Codex CLI**: apunta sempre a la passarel·la, mai a `api.openai.com`; l'espai no ha de
   tenir cap clau d'OpenAI. Només admet l'API Responses (`wire_api = "responses"`; `chat`
   ja no existeix), que LiteLLM serveix a `/v1/responses`. Model per defecte `gpt-6.1-sol`
