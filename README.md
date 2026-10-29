@@ -172,6 +172,28 @@ docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.5.0
 A Git Bash de Windows, afegeix `MSYS_NO_PATHCONV=1` davant de `docker run` perquè no
 reescrigui les rutes `/home/...`.
 
+## Publicar una versió (registre del Teclab)
+
+El workflow `.github/workflows/imatge.yml` construeix la imatge **a cada PR** que la toqui i hi
+passa unes proves de fum (Python, JupyterLab, code-server, Claude Code, `gh`, `psql`, entorn
+neutre, entrada). **Només en publicar una versió** la puja al registre del Teclab, sense cap
+clau: GitHub s'identifica a Google per federació d'identitats i actua com el compte
+`imatges-teclab-mixt`, que només pot escriure al registre `teclab`.
+
+1. Pujar la versió al README (`docker build -t teclab-mixt:X.Y.Z`) i a `CLAUDE.md`, i fusionar.
+2. Etiquetar: `git tag vX.Y.Z && git push origin vX.Y.Z` (o *Actions → Imatge → Run workflow*
+   amb la versió). El workflow comprova que la versió coincideix amb el README; mai `latest`.
+3. Al resum del job surt la referència amb l'empremta
+   (`europe-southwest1-docker.pkg.dev/uji-teclab/teclab/teclab-mixt@sha256:…`): és la que es
+   fixa a la plantilla de Coder del Teclab (`eloymesalles/teclab-gcp`).
+
+Variables del repo (*Settings → Secrets and variables → Actions → Variables*; no són secrets):
+`GCP_WIF_PROVIDER` (proveïdor `teclab-mixt` del pool `teclab`), `GCP_SERVICE_ACCOUNT`
+(`imatges-teclab-mixt@uji-teclab.iam.gserviceaccount.com`) i `GCP_REGISTRE`
+(`europe-southwest1-docker.pkg.dev/uji-teclab/teclab`). Sense elles, la versió es construeix
+però no es publica (avís al job). El permís l'ha creat `teclab-gcp` (fase 3a): només aquest
+repo pot actuar com el compte.
+
 ## Desplegament
 
 - **Demo** (`mesalles.org`): els compose de Coder i JupyterHub, els blocs de Caddy i les
@@ -182,4 +204,4 @@ reescrigui les rutes `/home/...`.
 - **Sandbox del Teclab a Google Cloud**: `eloymesalles/teclab-gcp` (Terraform, GitHub
   Actions). La plantilla de Coder per a màquines virtuals (`coder-template-gce/`, pendent) hi
   posa la passarel·la privada, la clau virtual del projecte i la CA del Teclab. La imatge s'hi
-  publicarà al registre `teclab` des d'aquest repo (workflow pendent).
+  publica al registre `teclab` des d'aquest repo (secció anterior).

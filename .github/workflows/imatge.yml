@@ -1,0 +1,139 @@
+# Construeix la imatge teclab-mixt i, només en publicar una versió, la puja al registre del
+# Teclab (Artifact Registry europe-southwest1-docker.pkg.dev/uji-teclab/teclab) sense cap clau:
+# GitHub s'identifica a Google per federació d'identitats (Workload Identity Federation) i
+# actua com el compte de servei imatges-teclab-mixt, que només pot escriure en aquest registre.
+#
+#   - A cada PR que toqui la imatge: construcció linux/amd64 i proves de fum. No publica res.
+#   - En crear una etiqueta vX.Y.Z (o a mà amb la versió): a més, publica teclab-mixt:X.Y.Z
+#     i deixa al resum del job la referència amb l'empremta (…@sha256:…), que és el que la
+#     plantilla de Coder del Teclab fixa. Mai «latest».
+#
+# Variables del repo (Settings → Secrets and variables → Actions → Variables; no són secrets):
+#   GCP_WIF_PROVIDER     projects/<número>/locations/global/workloadIdentityPools/teclab/providers/teclab-mixt
+#   GCP_SERVICE_ACCOUNT  imatges-teclab-mixt@uji-teclab.iam.gserviceaccount.com
+#   GCP_REGISTRE         europe-southwest1-docker.pkg.dev/uji-teclab/teclab
+# Sense elles, la publicació s'omet (la construcció i les proves es fan igualment).
+name: Imatge
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - bin/**
+      - examples/**
+      - requirements.txt
+      - .github/workflows/imatge.yml
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      versio:
+        description: "Versió a publicar (X.Y.Z, sense v); ha de coincidir amb el README"
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  IMATGE: teclab-mixt
+
+jobs:
+  imatge:
+    name: Construir, provar i (si és una versió) publicar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # només el fa servir el pas de publicació (federació d'identitats)
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      # Versió a publicar: de l'etiqueta (v1.2.3 → 1.2.3) o de l'entrada manual; buida a les PRs.
+      - id: versio
+        run: |
+          v=""
+          case "$GITHUB_REF" in refs/tags/v*) v="${GITHUB_REF#refs/tags/v}" ;; esac
+          [ -n "${{ github.event.inputs.versio }}" ] && v="${{ github.event.inputs.versio }}"
+          if [ -n "$v" ]; then
+            echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "versió no vàlida: $v"; exit 1; }
+            # La versió publicada ha de ser la que documenta el README (docker build -t teclab-mixt:X.Y.Z)
+            grep -q "docker build -t ${IMATGE}:${v} " README.md || { echo "el README no diu ${IMATGE}:${v}"; exit 1; }
+          fi
+          echo "versio=$v" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v4.4.1
+
+      # Construcció linux/amd64 carregada al Docker del runner (per provar-la); memòria cau de
+      # capes a GitHub per no refer-ho tot a cada execució.
+      - uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: ${{ env.IMATGE }}:prova
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Proves de fum
+        run: |
+          set -e
+          r() { docker run --rm "${IMATGE}:prova" "$@"; }
+          r python -c "import jupyterlab, openai, psycopg, pydantic_ai, langgraph; print('python ok')"
+          r jupyter lab --version
+          r code-server --version
+          # «claude» exigeix les variables de la passarel·la (valors de prova, cap crida)
+          docker run --rm -e LITELLM_BASE_URL=https://prova.invalid/v1 -e LITELLM_KEY=prova -e CLAUDE_MODEL_SONNET=prova "${IMATGE}:prova" claude --version
+          r claude-compte --version
+          r gh --version
+          r psql --version
+          r node --version
+          # Cap valor de plataforma cuit: LITELLM_BASE_URL buida i els exemples ho diuen
+          r sh -c '[ -z "$LITELLM_BASE_URL" ] && [ "$LITELLM_MODEL" = chat-default ] && echo "entorn neutre ok"'
+          r python /home/teclab/examples/resum.py && exit 1 || echo "resum.py sense variables surt amb error (ok)"
+          # Sense TECLAB_CA_CERT l'entrada no fa res; amb una ruta inexistent avisa i arrenca
+          docker run --rm -e TECLAB_CA_CERT=/no/hi/es "${IMATGE}:prova" sh -c 'echo "entrada ok"'
+          r sh -c 'which codex && exit 1 || echo "sense codex (ok)"'
+
+      # ---- Publicació (només amb versió i amb les variables del repo) ----------------------
+
+      - id: auth
+        if: steps.versio.outputs.versio != '' && vars.GCP_WIF_PROVIDER != '' && vars.GCP_SERVICE_ACCOUNT != '' && vars.GCP_REGISTRE != ''
+        uses: google-github-actions/auth@v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      - if: steps.auth.outcome == 'success'
+        uses: docker/login-action@v4.6.0
+        with:
+          registry: europe-southwest1-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Publica la versió al registre
+        if: steps.auth.outcome == 'success'
+        run: |
+          set -e
+          ref="${{ vars.GCP_REGISTRE }}/${IMATGE}:${{ steps.versio.outputs.versio }}"
+          docker tag "${IMATGE}:prova" "$ref"
+          docker push "$ref"
+          digest="$(docker inspect --format='{{index .RepoDigests 0}}' "$ref")"
+          {
+            echo "## Imatge publicada"
+            echo
+            echo '```'
+            echo "$ref"
+            echo "$digest"
+            echo '```'
+            echo
+            echo "La segona línia (amb l'empremta) és la que fixa la plantilla de Coder del Teclab."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "publicada: $digest"
+
+      - name: Versió sense publicar
+        if: steps.versio.outputs.versio != '' && steps.auth.outcome != 'success'
+        run: |
+          echo "::warning::Versió ${{ steps.versio.outputs.versio }} construïda però NO publicada: falten les variables GCP_WIF_PROVIDER, GCP_SERVICE_ACCOUNT o GCP_REGISTRE al repo."
