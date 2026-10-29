@@ -24,14 +24,14 @@ resta de valors de plataforma arriben sempre per l'entorn de l'espai (taula de s
 | code-server (VS Code al navegador) | 4.141.0 |
 | `openai` (client compatible amb la passarel·la) | 3.29.0 |
 | `psycopg` (driver de PostgreSQL) + client `psql` 16 (PGDG) | 3.3.6 / 16.15 |
-| Codex CLI (`@openai/codex`, agent de codi al terminal, via la passarel·la) | 0.162.1 |
+| Claude Code (`@anthropic-ai/claude-code`, agent de codi al terminal; `claude` per la passarel·la, `claude-compte` amb la llicència de la UJI) | 2.1.300 |
 | `pydantic-ai-slim[openai]` + `langgraph` (SDK d'agents; vegeu `examples/README.md`) | 2.54.0 / 1.2.12 |
 | `opentelemetry-sdk` + `opentelemetry-exporter-otlp` (traces dels agents) | 1.45.0 |
 | git, ruff, detect-secrets | — / 0.17.0 / 1.5.0 |
 | PocketBase (binari a `/opt/pocketbase`, no s'engega) | 0.40.5 |
 
 Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
-`/home/teclab/examples`. Mida: uns 2,2 GB.
+`/home/teclab/examples`. Mida: uns 2,7 GB (Claude Code és un binari natiu de 270 MB).
 
 ## Variables d'entorn de l'espai
 
@@ -41,7 +41,7 @@ Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
 | `LITELLM_KEY` | Clau virtual creada a l'administració de LiteLLM de la plataforma (*Virtual Keys*). **La posa l'eina (Coder o JupyterHub) a l'entorn de l'espai; mai a la imatge ni al git.** |
 | `LITELLM_MODEL` | **Àlies del catàleg** de la passarel·la, no un model: `chat-default` (per defecte a la imatge, igual a les dues plataformes). A quin model apunta ho decideix l'administració de LiteLLM |
 | `OTEL_SERVICE_NAME`, `OTEL_TRACES_EXPORTER`, `OTEL_EXPORTER_OTLP_ENDPOINT` | Traces OpenTelemetry dels exemples d'agent: nom del servei (la plantilla el posa, `teclab-<propietari>-<espai>`), exportador `otlp`, endpoint buit per defecte (sense exportar) |
-| `CODEX_MODEL` | `gpt-6.1-sol` per defecte: model que fa servir Codex CLI (d'OpenAI, via la passarel·la) |
+| `CLAUDE_MODEL_SONNET`, `CLAUDE_MODEL_HAIKU`, `CLAUDE_MODEL_OPUS` | Noms, al catàleg de la passarel·la, dels models de Claude que usa `claude` (Teclab: `claude-sonnet-5.5`, `claude-haiku-5.5`; sense Opus). Buits a la imatge: els posa la plataforma. Sense `CLAUDE_MODEL_SONNET`, `claude` no arrenca |
 | `DATABASE_URL`, `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` | Només a Coder: la base de dades PostgreSQL pròpia de l'espai (sidecar; vegeu `coder/README.md`). A JupyterHub no hi ha base de dades. |
 | `DATA_SOURCE` | `csv` (per defecte) o `postgres`: font de dades d'`examples/dades.py` |
 | `TECLAB_CA_CERT` | Ruta del certificat (PEM) de la CA privada del Teclab, muntat al contenidor per la plataforma (Teclab GCP: `/etc/teclab/ca.crt`). Buida a la demo. Vegeu «CA del Teclab» |
@@ -69,34 +69,44 @@ Comprovació en local amb una CA de prova (`openssl`): un servidor `https` dins 
 amb un certificat signat per ella, i `curl`, `httpx`, `requests` i `node -e "fetch(...)"`
 contra ell funcionen amb `TECLAB_CA_CERT` i fallen sense (vegeu la PR de la issue #21).
 
-## Codex CLI
+## Claude Code
 
-Al terminal de l'espai (VS Code a Coder, o terminal del launcher a JupyterHub):
+Agent de codi al terminal de l'espai (VS Code a Coder, o terminal del launcher a JupyterHub),
+amb **dos modes**, que són dues ordres:
 
 ```bash
-codex                         # sessió interactiva al directori actual (~/work)
-codex "explica què fa examples/resum.py"
+claude                         # per la PASSAREL·LA del projecte (mode per defecte)
+claude "explica què fa examples/resum.py"
+claude-compte                  # amb la LLICÈNCIA DE CLAUDE DE LA UJI de l'usuari
 ```
 
-- **Cap a on apunta**: a la passarel·la de la plataforma (`LITELLM_BASE_URL`, obligatòria)
-  amb la clau de l'espai (`LITELLM_KEY`), **mai** a `api.openai.com`. L'espai no té cap
-  clau d'OpenAI; LiteLLM reenvia la petició a OpenAI amb la seva. Codex només parla l'API
-  Responses, que LiteLLM serveix a `/v1/responses`.
-- **Model**: `gpt-6.1-sol` (el recomanat per OpenAI per a Codex; 2 $/10 $ per milió de
-  tokens d'entrada/sortida). Es canvia amb `CODEX_MODEL` o amb `codex -m <model>`;
-  `gpt-6-luna` és vint vegades més barat però més fluix. **El consum compta contra el
-  pressupost de la clau del projecte** a l'administració de LiteLLM de la plataforma.
-- **Mode conservador**: `approval_policy = "on-request"` i `sandbox_mode = "read-only"`.
-  Llegeix lliurement, però demana confirmació abans d'executar ordres o escriure fitxers.
-  El sandbox de Linux de Codex és **bubblewrap** i necessita espais de noms d'usuari sense
-  privilegis, que el perfil seccomp per defecte de Docker bloqueja: per això els espais
-  de Coder i de JupyterHub arrenquen amb `seccomp=unconfined` (sense capacitats ni
-  socket, igualment). En un contenidor sense aquesta opció, Codex no pot executar cap
-  ordre (`bwrap: No permissions to create a new namespace`).
-- **Configuració**: `~/.codex/config.toml` el genera l'embolcall `/usr/local/bin/codex`
-  (font: `bin/codex`) el primer cop que s'executa, a partir de `LITELLM_BASE_URL` i
-  `CODEX_MODEL`. No conté cap clau (Codex la llegeix de `LITELLM_KEY` amb `env_key`). Es
-  pot editar; per regenerar-lo, esborra'l.
+- **`claude` (passarel·la)**: l'embolcall `/usr/local/bin/claude` (font: `bin/claude`) tradueix
+  les variables de la plataforma a les de Claude Code i executa el programa: `ANTHROPIC_BASE_URL`
+  = `LITELLM_BASE_URL` sense `/v1` (Claude Code hi afegeix `/v1/messages`, que LiteLLM serveix
+  en format Anthropic), `ANTHROPIC_AUTH_TOKEN` = `LITELLM_KEY` (capçalera `Authorization:
+  Bearer`), i els àlies `sonnet`/`haiku`/`opus` resolen a `CLAUDE_MODEL_SONNET`,
+  `CLAUDE_MODEL_HAIKU` i `CLAUDE_MODEL_OPUS` (noms del catàleg de la passarel·la; sense Opus,
+  Sonnet). **Els models que pot usar els limita la clau virtual** (llista de models i pressupost
+  del projecte), no la imatge. Cap trànsit fora de la passarel·la
+  (`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`), cap autoactualització (versió fixada) i sense
+  capacitats experimentals (`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`: la passarel·la reenvia a
+  Bedrock i rebutjaria camps que no coneix; es pot posar a `0` a l'entorn). La clau no s'escriu
+  mai a cap fitxer. Sense `LITELLM_BASE_URL`, `LITELLM_KEY` o `CLAUDE_MODEL_SONNET`, surt amb
+  un missatge (codi 2). A la demo, la passarel·la no té models de Claude: `claude` hi fallarà
+  mentre no se n'afegeixi un a LiteLLM; `claude-compte` sí que hi funciona.
+- **`claude-compte` (llicència de la UJI)**: el mateix programa amb la carpeta de configuració
+  `~/.claude-compte` i **sense cap variable de la passarel·la** (font: `bin/claude-compte`). El
+  primer cop, `/login` mostra una adreça: s'obre al navegador del portàtil, s'hi entra amb el
+  compte i s'enganxa el codi al terminal. La credencial queda a `~/.claude-compte`, al disc
+  persistent de l'espai: una vegada per espai. El consum compta contra la llicència de la
+  persona, no contra la clau del projecte, i no passa pel registre de LiteLLM.
+- **Per què dues ordres**: Claude Code tria sempre les variables de la passarel·la per davant
+  del compte de `/login` (ordre de prioritat fix) i no té cap ordre per commutar dins d'una
+  sessió; el mètode documentat per a dos comptes és una carpeta de configuració per compte
+  (`CLAUDE_CONFIG_DIR`). Les dues ordres no es trepitgen: `claude` usa `~/.claude`.
+- **Mode conservador**: per defecte Claude Code demana confirmació abans d'editar fitxers o
+  executar ordres. No necessita cap permís extra del contenidor (el sandbox de Codex, que
+  requeria `seccomp=unconfined`, ja no hi és).
 
 ## Exemples
 
@@ -134,10 +144,10 @@ docker run --rm teclab-mixt:0.5.0 python /home/teclab/examples/resum.py
 docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.5.0 \
   python /home/teclab/examples/resum.py
 
-# Codex CLI sense interactiu (genera ~/.codex/config.toml i respon); el seccomp és pel sandbox
-docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway \
-  --security-opt seccomp=unconfined teclab-mixt:0.5.0 \
-  codex exec --skip-git-repo-check "explica en dues frases què fa /home/teclab/examples/resum.py"
+# Claude Code sense interactiu, per la passarel·la (cal CLAUDE_MODEL_SONNET al .env i que la
+# passarel·la tingui aquest model)
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.5.0 \
+  claude -p "explica en dues frases què fa /home/teclab/examples/resum.py"
 
 # JupyterLab en local (http://localhost:8888)
 docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.5.0

@@ -1,0 +1,49 @@
+#!/bin/sh
+# claude: Claude Code per la PASSAREL·LA DEL PROJECTE (LiteLLM), instal·lat a /usr/local/bin/claude.
+#
+# Mode per defecte de l'espai. Tradueix les variables de la plataforma a les que llegeix
+# Claude Code i executa el binari real. Els models que pot usar els limita la clau virtual
+# (llista «models» i pressupost del projecte), no aquest script.
+#
+#   LITELLM_BASE_URL     adreça de la passarel·la (amb o sense /v1); la posa la plataforma
+#   LITELLM_KEY          clau virtual de l'espai; va a la capçalera Authorization: Bearer
+#   CLAUDE_MODEL_SONNET  nom, al catàleg de la passarel·la, del model «sonnet» (obligatori)
+#   CLAUDE_MODEL_HAIKU   idem «haiku» (opcional; si no, el de sonnet)
+#   CLAUDE_MODEL_OPUS    idem «opus» (opcional; si no, el de sonnet)
+#
+# La clau no s'escriu mai a cap fitxer: només viu a l'entorn del procés. Per usar la
+# llicència de Claude de la UJI en lloc de la passarel·la: claude-compte.
+set -eu
+
+REAL=/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe # binari natiu
+
+if [ -z "${LITELLM_BASE_URL:-}" ] || [ -z "${LITELLM_KEY:-}" ]; then
+  echo "claude: calen LITELLM_BASE_URL i LITELLM_KEY a l'entorn de l'espai (les posa la plataforma)." >&2
+  echo "        Per usar la llicència de Claude de la UJI en lloc de la passarel·la: claude-compte" >&2
+  exit 2
+fi
+if [ -z "${CLAUDE_MODEL_SONNET:-}" ]; then
+  echo "claude: cal CLAUDE_MODEL_SONNET (nom del model de Claude al catàleg de la passarel·la; la posa la plataforma)." >&2
+  exit 2
+fi
+
+# Claude Code afegeix /v1/messages a l'adreça base: cal l'arrel de la passarel·la, sense /v1.
+base="${LITELLM_BASE_URL%/}"
+base="${base%/v1}"
+
+export ANTHROPIC_BASE_URL="$base"
+export ANTHROPIC_AUTH_TOKEN="$LITELLM_KEY"
+unset ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN 2>/dev/null || true
+# Model de la sessió i a què resolen els àlies sonnet / haiku / opus
+export ANTHROPIC_MODEL="$CLAUDE_MODEL_SONNET"
+export ANTHROPIC_DEFAULT_SONNET_MODEL="$CLAUDE_MODEL_SONNET"
+export ANTHROPIC_DEFAULT_HAIKU_MODEL="${CLAUDE_MODEL_HAIKU:-$CLAUDE_MODEL_SONNET}"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="${CLAUDE_MODEL_OPUS:-$CLAUDE_MODEL_SONNET}"
+# Res fora de la passarel·la (telemetria, comprovacions de versió) i cap autoactualització
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+export DISABLE_AUTOUPDATER=1
+# Sense capacitats experimentals: la passarel·la reenvia a Bedrock i rebutjaria camps que
+# no coneix (error 400). Es pot desactivar posant la variable a 0 a l'entorn.
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS="${CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS:-1}"
+
+exec "$REAL" "$@"

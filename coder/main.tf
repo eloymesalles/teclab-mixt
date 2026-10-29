@@ -1,5 +1,5 @@
 # Plantilla de Coder «teclab-mixt»: un espai de treball per projecte amb VS Code
-# (code-server), JupyterLab i Codex CLI al terminal, sobre la imatge compartida amb
+# (code-server), JupyterLab i Claude Code al terminal, sobre la imatge compartida amb
 # JupyterHub, i una base de dades PostgreSQL pròpia (sidecar pgvector) en una xarxa
 # privada de l'espai.
 #
@@ -56,10 +56,19 @@ variable "litellm_model" {
   default     = "chat-default"
 }
 
-variable "codex_model" {
-  description = "Model (d'OpenAI, via la passarel·la) que fa servir Codex CLI al terminal de l'espai."
+# Claude Code per la passarel·la («claude»): noms, al catàleg de LiteLLM, dels models de
+# Claude. Buits a la demo (la seva passarel·la no en té): allà «claude» avisa i surt, i
+# «claude-compte» (llicència de la UJI) funciona igualment.
+variable "claude_model_sonnet" {
+  description = "Nom al catàleg de la passarel·la del model «sonnet» de Claude Code (CLAUDE_MODEL_SONNET). Buit = «claude» desactivat a l'espai."
   type        = string
-  default     = "gpt-6.1-sol"
+  default     = ""
+}
+
+variable "claude_model_haiku" {
+  description = "Nom al catàleg de la passarel·la del model «haiku» de Claude Code (CLAUDE_MODEL_HAIKU). Buit = el de sonnet."
+  type        = string
+  default     = ""
 }
 
 # ── Coder ──
@@ -110,8 +119,9 @@ resource "coder_agent" "main" {
     LITELLM_BASE_URL = var.litellm_base_url
     LITELLM_KEY      = var.litellm_key
     LITELLM_MODEL    = var.litellm_model
-    # Codex CLI llegeix la clau de LITELLM_KEY (env_key) i el model d'aquí
-    CODEX_MODEL = var.codex_model
+    # Claude Code («claude») llegeix la clau de LITELLM_KEY i els models d'aquí
+    CLAUDE_MODEL_SONNET = var.claude_model_sonnet
+    CLAUDE_MODEL_HAIKU  = var.claude_model_haiku
     # Base de dades de l'espai: l'app només ha de conèixer DATABASE_URL
     DATABASE_URL = "postgres://${local.db_user}:${random_password.db.result}@${local.db_name}:5432/${local.db_database}"
     # ...i psql funciona al terminal sense configurar res
@@ -329,12 +339,11 @@ resource "docker_container" "workspace" {
   cpus   = "2"
   memory = 3072
 
-  # El sandbox de Codex CLI (bubblewrap) necessita espais de noms d'usuari sense
-  # privilegis, que el perfil seccomp per defecte de Docker bloqueja. Sense això Codex
-  # no pot executar cap ordre. L'espai continua sense capacitats ni socket de Docker.
-  security_opts = ["seccomp=unconfined"]
+  # Cap permís extra: el seccomp=unconfined que demanava el sandbox de Codex ja no cal amb
+  # Claude Code. L'espai continua sense capacitats ni socket de Docker.
 
-  # L'agent de Coder arrenca via l'init script; l'ENTRYPOINT (tini) de la imatge es manté
+  # L'agent de Coder arrenca via l'init script; l'ENTRYPOINT (tini + teclab-entrypoint) de
+  # la imatge es manté
   command = ["sh", "-c", coder_agent.main.init_script]
   env     = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
 

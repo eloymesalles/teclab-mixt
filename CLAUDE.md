@@ -14,7 +14,7 @@ del Teclab a Google Cloud** (`eloymesalles/teclab-gcp`: Coder amb una VM per esp
 en quina plataforma corre**: cap adreça, nom de màquina ni model de cap plataforma cuit a la
 imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espai.
 
-- `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Codex CLI, `openai`,
+- `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Claude Code, `openai`,
   git, ruff, detect-secrets, PocketBase (binari, no s'engega), exemples. **Versions
   fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.5.0` (cada canvi d'imatge puja
   la versió; docker-stack la fixa als compose i a la plantilla de Coder; al Teclab es fixa
@@ -26,10 +26,14 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   `CURL_CA_BUNDLE`, `GIT_SSL_CAINFO`, `REQUESTS_CA_BUNDLE` (paquet combinat) i
   `NODE_EXTRA_CA_CERTS` (la CA sola). Sense la variable, no fa res. **Cap `verify=False` ni
   `curl -k` al repo**: la confiança es resol aquí, no amb excepcions.
-- `bin/codex` — embolcall instal·lat a `/usr/local/bin/codex`: genera
-  `~/.codex/config.toml` el primer cop (proveïdor `teclab` = passarel·la, `env_key =
-  LITELLM_KEY`, `wire_api = "responses"`, model `CODEX_MODEL`, `on-request` +
-  `read-only`) i executa el binari de `@openai/codex`.
+- `bin/claude` i `bin/claude-compte` — els dos modes de Claude Code (`@anthropic-ai/claude-code`,
+  versió fixada, `DISABLE_AUTOUPDATER=1`). `claude`: passarel·la del projecte
+  (`ANTHROPIC_BASE_URL` = `LITELLM_BASE_URL` sense `/v1`, `ANTHROPIC_AUTH_TOKEN` =
+  `LITELLM_KEY`, àlies de models de `CLAUDE_MODEL_SONNET/HAIKU/OPUS`, sense trànsit fora de
+  la passarel·la ni capacitats experimentals). `claude-compte`: llicència de Claude de la UJI
+  de l'usuari (`CLAUDE_CONFIG_DIR=~/.claude-compte`, cap variable de la passarel·la, `/login`).
+  Dues ordres perquè Claude Code prioritza sempre la passarel·la sobre el compte. La clau
+  mai a cap fitxer.
 - `examples/` — `resum.py` i un notebook que criden la passarel·la LiteLLM
   (`LITELLM_BASE_URL`, `LITELLM_KEY`, obligatòries: surten amb missatge si falten);
   `dades.py` + `mostra.csv`, l'adaptador de dades (`DATA_SOURCE=csv|postgres`);
@@ -68,13 +72,12 @@ no s'ha de tocar.
   (nom privat, CA del Teclab). `LITELLM_MODEL` és l'àlies `chat-default` a tot arreu; si
   apunta a un model de raonament (a la demo, `qwen3:8b`) cal un `max_tokens` generós o el
   contingut arriba buit.
-- **Codex CLI**: apunta sempre a la passarel·la, mai a `api.openai.com`; l'espai no ha de
-  tenir cap clau d'OpenAI. Només admet l'API Responses (`wire_api = "responses"`; `chat`
-  ja no existeix), que LiteLLM serveix a `/v1/responses`. Model per defecte `gpt-6.1-sol`
-  (d'OpenAI; el consum compta contra la clau del projecte). Mantén el mode conservador
-  (`on-request` + `read-only`: demana confirmació per a ordres i escriptures): és un
-  sandbox compartit de demo. Cada torn porta uns 10k tokens de pròleg (~0,03 $ la primera
-  crida, menys després per la memòria cau).
+- **Claude Code**: `claude` apunta sempre a la passarel·la, mai a `api.anthropic.com`; l'espai
+  no té cap clau d'Anthropic. Els models els limita la clau virtual (la plataforma posa
+  `CLAUDE_MODEL_*` amb noms del catàleg; a la demo no hi ha models de Claude, així que allà
+  només funciona `claude-compte`). Mode conservador per defecte (demana confirmació per a
+  edicions i ordres). Cada torn porta un pròleg gran de tokens: el consum compta contra la
+  clau del projecte (`claude`) o la llicència de la persona (`claude-compte`).
 - **Recursos**: cada espai, 2 vCPU i 3 GiB com a màxim; aturada per inactivitat a 30 min
   a les dues eines. Docker Desktop (WSL2) té 16 GB per a tots els contenidors.
 - **Superfície pública**: JupyterHub va darrere d'oauth2-proxy; Coder té autenticació
@@ -86,9 +89,9 @@ no s'ha de tocar.
   sintètiques o anonimitzades** als espais (ENS mp.sw.1.1; Instrucció 05, apt. 7.2): cap
   dada de producció.
 - **Socket de Docker**: el reben Coder i JupyterHub (necessari); els espais de treball,
-  mai. L'únic permís extra dels espais és `seccomp=unconfined` (plantilla de Coder i
-  spawner de JupyterHub), imprescindible perquè el sandbox de Codex (bubblewrap, espais
-  de noms d'usuari) funcioni; sense capacitats ni privilegis. Decisió de #11.
+  mai. Cap permís extra als espais: el `seccomp=unconfined` que demanava el sandbox de
+  Codex (bubblewrap; decisió de #11) va desaparèixer amb Codex (#22). Sense capacitats ni
+  privilegis.
 
 ## Flux de treball — OBLIGATORI
 

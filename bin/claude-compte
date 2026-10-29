@@ -1,0 +1,22 @@
+#!/bin/sh
+# claude-compte: Claude Code amb la LLICÈNCIA DE CLAUDE DE LA UJI de l'usuari (compte propi),
+# instal·lat a /usr/local/bin/claude-compte. No passa per la passarel·la del projecte.
+#
+# Primer ús: /login (mostra una adreça per obrir al navegador del portàtil i demana el codi
+# al terminal). La credencial queda a ~/.claude-compte, al disc persistent de l'espai: una
+# vegada per espai. Carpeta de configuració pròpia perquè no es trepitgi amb «claude»
+# (Claude Code, si té les variables de la passarel·la a l'entorn, les fa servir sempre per
+# davant del compte; per això són dues ordres i no una).
+set -eu
+
+REAL=/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe # binari natiu
+
+export CLAUDE_CONFIG_DIR="$HOME/.claude-compte"
+# Cap rastre de la passarel·la ni de cap altra credencial a l'entorn d'aquest mode
+unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN ANTHROPIC_API_KEY ANTHROPIC_CUSTOM_HEADERS \
+      ANTHROPIC_MODEL ANTHROPIC_DEFAULT_SONNET_MODEL ANTHROPIC_DEFAULT_HAIKU_MODEL \
+      ANTHROPIC_DEFAULT_OPUS_MODEL CLAUDE_CODE_OAUTH_TOKEN 2>/dev/null || true
+export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+export DISABLE_AUTOUPDATER=1
+
+exec "$REAL" "$@"
