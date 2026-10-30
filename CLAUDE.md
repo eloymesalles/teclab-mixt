@@ -57,6 +57,11 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   persistent, `random_password`; l'app només rep `DATABASE_URL` i les `PG*`). Límits amb
   `cpus` (quota), mai `cpu_set`.
 - `jupyterhub/` — `jupyterhub_config.py` (DockerSpawner) que usa la imatge.
+- `.github/workflows/imatge.yml` — a cada PR construeix la imatge i hi passa proves de fum;
+  en etiquetar `vX.Y.Z` (o a mà) la publica al registre `teclab` del Teclab per federació
+  (variables `GCP_WIF_PROVIDER`, `GCP_SERVICE_ACCOUNT`, `GCP_REGISTRE`; cap secret) i deixa
+  l'empremta al resum. La versió de l'etiqueta ha de coincidir amb el README. Accions amb
+  versió exacta (estables amb més de 14 dies), mai `latest`.
 
 El desplegament (compose de cada eina, blocs de Caddy, xarxes) viu a `../docker-stack`
 (`demo/coder/`, `demo/jupyter/`). És una **demo**, no producció: ha de funcionar i
