@@ -1,0 +1,3 @@
+# Generador del manual d'usuari (docs/). Versió fixada; mkdocs-material arrossega mkdocs i
+# pymdown-extensions. Mateixa versió que la imatge squidfunk/mkdocs-material usada en local.
+mkdocs-material==9.7.7

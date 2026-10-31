@@ -1,0 +1,82 @@
+# Manual d'usuari del sandbox del Teclab: documentació com a codi (carpeta docs/), generada
+# amb MkDocs i el tema Material, estructurada segons Diátaxis. Comprovació: mkdocs build --strict.
+site_name: Sandbox del Teclab · Manual d'usuari
+site_description: Com treballar en un espai del sandbox del Teclab (UJI) amb VS Code, notebooks, la passarel·la de models i la base de dades de l'espai.
+site_url: https://eloymesalles.github.io/teclab-mixt/
+repo_url: https://github.com/eloymesalles/teclab-mixt
+repo_name: eloymesalles/teclab-mixt
+edit_uri: edit/main/docs/
+copyright: Teclab · Universitat Jaume I
+
+theme:
+  name: material
+  language: ca
+  # Sense tipografies de Google: el lloc no fa cap petició a tercers per a mostrar-se.
+  font: false
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Mode fosc
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Mode clar
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - tables
+  - toc:
+      permalink: true
+      title: En esta pàgina
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+
+plugins:
+  - search
+
+nav:
+  - Inici: index.md
+  - Tutorial:
+      - El teu primer espai: tutorials/primer-espai.md
+  - Guies pràctiques:
+      - Connectar el teu VS Code: guies/vscode-local.md
+      - Notebooks: guies/notebooks.md
+      - L'agent de codi (Claude Code): guies/agent-de-codi.md
+      - La base de dades de l'espai: guies/base-de-dades.md
+      - Mostrar una app web: guies/app-web.md
+      - Exportar dades i codi: guies/exportar-dades.md
+      - Preparar el projecte per a la porta 2: guies/preparar-porta-2.md
+  - Referència:
+      - La imatge (eines i versions): referencia/imatge.md
+      - Variables d'entorn: referencia/variables-entorn.md
+      - Àlies i models: referencia/alies-models.md
+      - Límits: referencia/limits.md
+      - Dades permeses: referencia/dades.md
+      - Glossari: referencia/glossari.md
+  - Explicació:
+      - La passarel·la i el catàleg: explicacio/passarel-la-i-catalog.md
+      - La xarxa de l'espai: explicacio/xarxa-de-l-espai.md
+      - Cicle de vida d'un espai: explicacio/cicle-de-vida.md
