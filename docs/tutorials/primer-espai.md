@@ -5,19 +5,13 @@ model, consultar la base de dades i aturar l'espai. No cal instal·lar res.
 
 ## Abans de començar
 
-- Una persona administradora del Teclab t'ha creat l'espai i t'ha dit l'adreça de la
-  plataforma.
+- Una persona administradora del Teclab t'ha creat l'espai.
 - Estàs a la xarxa de la UJI (campus o VPN). Des de fora, l'adreça no respon.
 - Tens el teu compte de la UJI a mà.
 
-!!! note "Situació provisional"
-    Fins que la UJI no publique els noms definitius, pot caldre una línia al fitxer `hosts`
-    del teu ordinador i acceptar un avís del navegador sobre el certificat. L'administrador/a
-    t'ho haurà indicat; si no, pregunta-li-ho.
-
 ## 1. Entra
 
-1. Obri l'adreça de la plataforma al navegador.
+1. Obri <https://plataforma.teclab.uji.es> al navegador.
 2. Prem **Entra amb el compte de la UJI** i tria el teu compte.
 3. Apareix la pàgina **Workspaces** amb el teu espai.
 
@@ -86,8 +80,7 @@ activitat.
 
 ## Si falla
 
-- **L'adreça no carrega**: no ets a la xarxa de la UJI, o falta la línia al fitxer `hosts`
-  (situació provisional).
+- **L'adreça no carrega**: no ets a la xarxa de la UJI (campus o VPN).
 - **«Entra amb el compte de la UJI» et rebutja**: el teu usuari no existeix encara a la
   plataforma. Avisa l'administrador/a.
 - **L'agent es queda en «taking longer than expected»** la primera vegada: pot ser que
