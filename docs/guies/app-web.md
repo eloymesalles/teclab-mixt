@@ -8,8 +8,8 @@ només existeix mentre l'espai és engegat i tu l'has llançada.
     Les apps de l'espai s'obrin sota l'adreça de la plataforma, i Coder no permet compartir-les
     de manera segura amb altres persones (ni tan sols amb l'administrador/a): qualsevol altra
     persona rep «404 - Application Not Found». Per a ensenyar-la, comparteix la pantalla. La
-    compartició arribarà amb les apps per subdomini, quan la plataforma tinga els noms
-    definitius.
+    compartició arribarà amb les apps per subdomini (una adreça pròpia per a cada app), en
+    preparació.
 
 ## Com funciona
 

@@ -31,7 +31,8 @@ gestiona els espais. No cal que instal·les res al teu ordinador.
 Els termes fixos del manual (espai, passarel·la, sidecar, agent…) són al
 [Glossari](referencia/glossari.md).
 
-!!! note "Situació provisional"
-    Mentre la UJI no publique els noms definitius i el certificat de la plataforma, l'adreça
-    d'entrada i l'avís del navegador són provisionals. L'administrador/a t'ho indicarà en
-    crear-te l'espai.
+## Adreça
+
+La plataforma és a **<https://plataforma.teclab.uji.es>**, només des de la xarxa de la UJI
+(campus o VPN). El certificat és de HARICA, el proveïdor de la UJI: el navegador no ha
+d'avisar de res.
