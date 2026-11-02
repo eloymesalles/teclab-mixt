@@ -16,3 +16,6 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.zip
+
+# Manual d'usuari generat per mkdocs (docs/ -> site/)
+site/

@@ -62,6 +62,12 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   (variables `GCP_WIF_PROVIDER`, `GCP_SERVICE_ACCOUNT`, `GCP_REGISTRE`; cap secret) i deixa
   l'empremta al resum. La versió de l'etiqueta ha de coincidir amb el README. Accions amb
   versió exacta (estables amb més de 14 dies), mai `latest`.
+- `docs/` + `mkdocs.yml` — **manual d'usuari del sandbox** (MkDocs Material, versió fixada a
+  `docs/requirements.txt`; estructura Diátaxis: tutorial, guies, referència, explicació),
+  publicat a GitHub Pages pel workflow `docs.yml` (`mkdocs build --strict` a cada PR que el
+  toqui). **S'actualitza amb cada canvi de comportament de l'espai o de la plataforma**
+  (`teclab-gcp`), igual que el README: una issue de documentació aquí per cada canvi que
+  l'afecti. Comprovació local amb la imatge `squidfunk/mkdocs-material` de la mateixa versió.
 
 El desplegament (compose de cada eina, blocs de Caddy, xarxes) viu a `../docker-stack`
 (`demo/coder/`, `demo/jupyter/`). És una **demo**, no producció: ha de funcionar i

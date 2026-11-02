@@ -44,14 +44,14 @@ Al terminal:
 python examples/resum.py
 ```
 
-El programa envia un text a la passarel·la amb l'àlies `chat-default` i mostra el resum, el
-model que l'ha fet, els tokens i el temps:
+El programa envia un text a la passarel·la amb l'àlies `chat-default` i mostra el resum,
+l'àlies, els tokens i el temps:
 
 ```text
 ── Resum ──
 (dos frases de resum)
 
-model: gemini-2.5-flash  ·  passarel·la: https://…/v1
+model: chat-default  ·  passarel·la: https://…/v1
 tokens: 180 llegits, 45 generats  ·  1.4 s
 ```
 
