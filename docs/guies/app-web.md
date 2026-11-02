@@ -1,9 +1,15 @@
 # Mostrar una app web
 
 Si el teu projecte té una interfície web (Streamlit, Gradio, FastAPI, Flask…), l'espai pot
-mostrar-la amb un botó **App** a la fitxa de Coder. És una manera d'**ensenyar** el projecte
-a altres persones de la UJI, no de servir-lo: l'app només existeix mentre l'espai és engegat i
-tu l'has llançada.
+mostrar-la amb un botó **App** a la fitxa de Coder. No és una manera de servir-la: l'app
+només existeix mentre l'espai és engegat i tu l'has llançada.
+
+!!! note "Només tu la pots obrir"
+    Les apps de l'espai s'obrin sota l'adreça de la plataforma, i Coder no permet compartir-les
+    de manera segura amb altres persones (ni tan sols amb l'administrador/a): qualsevol altra
+    persona rep «404 - Application Not Found». Per a ensenyar-la, comparteix la pantalla. La
+    compartició arribarà amb les apps per subdomini, quan la plataforma tinga els noms
+    definitius.
 
 ## Com funciona
 
@@ -21,9 +27,7 @@ Gradio `root_path`, FastAPI `--root-path`, Flask `APPLICATION_ROOT`, Django
 ## Passos
 
 1. Demana a l'administrador/a que active el botó per al teu espai: cal indicar el **port**
-   (per exemple `8501`) i **qui el pot obrir**: només tu (`owner`), qualsevol persona amb
-   sessió a Coder (`authenticated`) o sense sessió però només des de la xarxa de la UJI
-   (`public`). El màxim permés el fixa la plantilla.
+   (per exemple `8501`).
 2. Quan estiga actiu, a l'espai hi haurà la variable `APP_PORT`. Llança l'app escoltant-hi.
    Exemple amb Streamlit:
 
@@ -39,8 +43,8 @@ Gradio `root_path`, FastAPI `--root-path`, Flask `APPLICATION_ROOT`, Django
 
 - El botó App obri la teua interfície en una pestanya nova, amb una adreça que comença per
   la de la plataforma i conté `/apps/app/`.
-- Una altra persona amb el nivell de compartició adequat la veu des del seu navegador, dins
-  de la xarxa de la UJI.
+- Una altra persona amb la mateixa adreça rep «404 - Application Not Found»: és el
+  comportament esperat.
 
 ## Si falla
 
@@ -49,8 +53,8 @@ Gradio `root_path`, FastAPI `--root-path`, Flask `APPLICATION_ROOT`, Django
   `0.0.0.0` d'un altre port. Comprova `echo $APP_PORT` i la línia de llançament.
 - **La pàgina carrega però sense estils, o els enllaços donen 404**: l'app no serveix sota el
   prefix de ruta. Configura el paràmetre del teu marc (llista de dalt).
-- **Algú de fora no la veu**: el nivell de compartició és `owner`, o la persona és fora de la
-  xarxa de la UJI (també amb `public`).
+- **Una altra persona veu «404 - Application Not Found»**: només tu pots obrir l'app (vegeu
+  l'avís de l'inici).
 - **L'app desapareix al cap d'una estona**: l'espai s'ha aturat per inactivitat. Torna'l a
   engegar i torna a llançar l'app.
 
