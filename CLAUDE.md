@@ -10,7 +10,7 @@ Imatge d'espai de treball **`teclab-mixt`** del Teclab (laboratori d'IA de la UJ
 per **dues plataformes**: la **demo** de `mesalles.org` (**Coder** amb Docker i **JupyterHub**,
 a `coder.mesalles.org` i `jupyter.mesalles.org`; es manté com a banc de proves) i el **sandbox
 del Teclab a Google Cloud** (`eloymesalles/teclab-gcp`: Coder amb una VM per espai, LiteLLM a
-`llm-teclab.uji.es`). Una sola imatge per demostrar que el codi és portable. **La imatge no sap
+`llm.teclab.uji.es`). Una sola imatge per demostrar que el codi és portable. **La imatge no sap
 en quina plataforma corre**: cap adreça, nom de màquina ni model de cap plataforma cuit a la
 imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espai.
 
@@ -81,7 +81,7 @@ no s'ha de tocar.
   `.env` ignorat per git.
 - **Passarel·la**: compatible amb OpenAI; l'adreça la posa la plataforma (`LITELLM_BASE_URL`
   buida a la imatge). Demo: `https://api.mesalles.org/v1` (dins de Docker, el nom resol a
-  Caddy per la xarxa `demo-edge`, no a Internet). Teclab GCP: `https://llm-teclab.uji.es:4443/v1`
+  Caddy per la xarxa `demo-edge`, no a Internet). Teclab GCP: `https://llm.teclab.uji.es:4443/v1`
   (nom privat, CA del Teclab). `LITELLM_MODEL` és l'àlies `chat-default` a tot arreu; si
   apunta a un model de raonament (a la demo, `qwen3:8b`) cal un `max_tokens` generós o el
   contingut arriba buit.

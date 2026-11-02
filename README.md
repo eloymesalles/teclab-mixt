@@ -7,7 +7,7 @@ per a **dues plataformes**, per demostrar que el codi és portable:
 - la **demo** de `mesalles.org` (Coder amb Docker i JupyterHub, `../docker-stack`), que es
   manté com a banc de proves;
 - el **sandbox del Teclab a Google Cloud** (`eloymesalles/teclab-gcp`: Coder amb una màquina
-  virtual per espai i LiteLLM a `llm-teclab.uji.es`).
+  virtual per espai i LiteLLM a `llm.teclab.uji.es`).
 
 La imatge **no sap en quina plataforma corre**: l'adreça de la passarel·la, la clau i la
 resta de valors de plataforma arriben sempre per l'entorn de l'espai (taula de sota).
@@ -38,7 +38,7 @@ Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
 
 | Variable | Valor |
 |---|---|
-| `LITELLM_BASE_URL` | Adreça de la passarel·la. **Buida a la imatge**: la posa la plataforma. Demo: `https://api.mesalles.org/v1`; Teclab GCP: `https://llm-teclab.uji.es:4443/v1` (nom privat de la VPC, certificat de la CA del Teclab) |
+| `LITELLM_BASE_URL` | Adreça de la passarel·la. **Buida a la imatge**: la posa la plataforma. Demo: `https://api.mesalles.org/v1`; Teclab GCP: `https://llm.teclab.uji.es:4443/v1` (nom privat de la VPC, certificat de la CA del Teclab) |
 | `LITELLM_KEY` | Clau virtual creada a l'administració de LiteLLM de la plataforma (*Virtual Keys*). **La posa l'eina (Coder o JupyterHub) a l'entorn de l'espai; mai a la imatge ni al git.** |
 | `LITELLM_MODEL` | **Àlies del catàleg** de la passarel·la, no un model: `chat-default` (per defecte a la imatge, igual a les dues plataformes). A quin model apunta ho decideix l'administració de LiteLLM |
 | `OTEL_SERVICE_NAME`, `OTEL_TRACES_EXPORTER`, `OTEL_EXPORTER_OTLP_ENDPOINT` | Traces OpenTelemetry dels exemples d'agent: nom del servei (la plantilla el posa, `teclab-<propietari>-<espai>`), exportador `otlp`, endpoint buit per defecte (sense exportar) |
@@ -49,8 +49,8 @@ Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
 
 ## CA del Teclab
 
-Al sandbox de Google Cloud, Coder (`https://plataforma-teclab.uji.es:3443`) i LiteLLM
-(`https://llm-teclab.uji.es:4443`) serveixen per dins amb un certificat signat per una **CA
+Al sandbox de Google Cloud, Coder (`https://plataforma.teclab.uji.es:3443`) i LiteLLM
+(`https://llm.teclab.uji.es:4443`) serveixen per dins amb un certificat signat per una **CA
 privada del Teclab**. L'espai l'ha de verificar com qualsevol altre: **cap `verify=False`,
 cap `curl -k`** enlloc (TLS intern obligatori, ENS mp.com.2).
 
