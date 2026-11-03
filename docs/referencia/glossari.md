@@ -16,8 +16,8 @@ el que **no** usem.
   compte de la UJI.
 
 **Administrador/a**
-: Persona del Teclab que crea i esborra espais, canvia mides i pressupostos, i gestiona la
-  plataforma.
+: Persona del Teclab que crea i esborra espais (i en fixa la mida, el disc, els models i el
+  pressupost en crear-los), amplia pressupostos i gestiona la plataforma.
 
 **Passarel·la**
 : El servei que dóna accés als models de llenguatge (LiteLLM). L'espai hi parla amb una

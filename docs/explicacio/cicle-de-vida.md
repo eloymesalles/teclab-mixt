@@ -2,9 +2,9 @@
 
 ## Crear, aturar, engegar, esborrar
 
-Un espai naix quan una persona administradora el crea per al teu projecte. A partir d'ací,
-tu l'engegues i l'atures tantes vegades com vulgues; només l'administrador/a pot esborrar-lo
-o canviar-ne la mida.
+Un espai naix quan una persona administradora el crea per al teu projecte, i en eixe moment
+en fixa la mida de màquina, el disc, l'accés a models i el pressupost. A partir d'ací, tu
+l'engegues i l'atures tantes vegades com vulgues; només l'administrador/a pot esborrar-lo.
 
 Aturar un espai és apagar la seua màquina. El **disc persistent**, on hi ha la teua carpeta
 personal (`/home/teclab`) i la base de dades, es queda intacte i es torna a connectar en
@@ -14,14 +14,26 @@ engegar.
 |---|---|---|---|
 | Aturar (o 30 minuts d'inactivitat) | s'atura | es queda | es queda |
 | Engegar | s'engega; els contenidors es tornen a alçar | es reutilitza | la mateixa |
-| Canviar la mida de màquina (administrador/a) | es reinicia amb la mida nova | es queda | la mateixa |
-| Canviar accés a models o pressupost (administrador/a) | res | es queda | se'n genera una de nova |
+| Ampliar el pressupost (administrador/a) | res | es queda | la mateixa, amb el límit nou |
+| Canviar mida, disc o accés a models | no es pot: l'administrador/a crea un espai nou (exporta abans) | | |
 | Esborrar l'espai (administrador/a) | **s'esborra** | **s'esborra**, sense còpia | **es revoca** |
 
 !!! danger "Esborrar és definitiu"
     En esborrar un espai desapareixen la màquina, el disc i la clau. No hi ha paperera ni
     còpia de seguretat del disc. Abans d'esborrar un projecte, exporta el que vulgues
     conservar: [Exportar dades i codi](../guies/exportar-dades.md).
+
+## Els paràmetres de l'espai
+
+A la fitxa de l'espai, *Settings → Parameters* mostra els valors amb què es va crear: mida
+de màquina, disc, accés a models, pressupost i data de caducitat. Es fixen en crear l'espai
+i no es poden canviar després, ni tan sols l'administrador/a. Si el projecte necessita més
+pressupost, demana-ho: s'amplia sobre la clau sense tocar l'espai. Si necessita més màquina,
+més disc o altres models, l'administrador/a crea un espai nou: exporta abans el que vulgues
+conservar ([Exportar dades i codi](../guies/exportar-dades.md)).
+
+L'únic paràmetre que pots editar tu és el **port de l'app web**
+([Mostrar una app web](../guies/app-web.md)).
 
 ## Què es conserva i què no
 

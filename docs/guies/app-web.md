@@ -26,8 +26,10 @@ Gradio `root_path`, FastAPI `--root-path`, Flask `APPLICATION_ROOT`, Django
 
 ## Passos
 
-1. Demana a l'administrador/a que active el botó per al teu espai: cal indicar el **port**
-   (per exemple `8501`).
+1. Posa el **port** (per exemple `8501`) al paràmetre «Port de l'app web del projecte» de
+   l'espai: fitxa de l'espai → *Settings → Parameters*. És l'únic paràmetre que pots editar;
+   en desar, l'espai es reconstrueix (desa el que tingues obert). També ho pot fer
+   l'administrador/a en crear l'espai.
 2. Quan estiga actiu, a l'espai hi haurà la variable `APP_PORT`. Llança l'app escoltant-hi.
    Exemple amb Streamlit:
 
