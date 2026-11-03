@@ -86,7 +86,8 @@ activitat.
 - **L'agent es queda en «taking longer than expected»** la primera vegada: pot ser que
   l'espai s'haja creat abans de la teua primera entrada. Entrar una vegada sol
   desbloquejar-ho; si no, atura i engega l'espai.
-- **`Falta la variable d'entorn LITELLM_KEY`**: l'espai no té accés a models. Demana-ho.
+- **`Falta la variable d'entorn LITELLM_KEY`**: l'espai no té la clau a l'entorn. Atura i
+  engega l'espai; si persisteix, avisa l'administrador/a.
 - **Error 401/403 en `resum.py`**: la clau no té accés a `chat-default` o el pressupost s'ha
   esgotat. Avisa l'administrador/a.
 - **`psql: connection refused`**: la base de dades encara arranca. Espera un minut i repeteix.

@@ -2,8 +2,8 @@
 
 ## Crear, aturar, engegar, esborrar
 
-Un espai naix quan una persona administradora el crea per al teu projecte, i en eixe moment
-en fixa la mida de màquina, el disc, l'accés a models i el pressupost. A partir d'ací, tu
+Un espai naix quan una persona administradora el crea per al teu projecte (l'espai porta el
+nom del projecte), i en eixe moment en fixa la mida de màquina i el disc. A partir d'ací, tu
 l'engegues i l'atures tantes vegades com vulgues; només l'administrador/a pot esborrar-lo.
 
 Aturar un espai és apagar la seua màquina. El **disc persistent**, on hi ha la teua carpeta
@@ -14,8 +14,9 @@ engegar.
 |---|---|---|---|
 | Aturar (o 30 minuts d'inactivitat) | s'atura | es queda | es queda |
 | Engegar | s'engega; els contenidors es tornen a alçar | es reutilitza | la mateixa |
-| Ampliar el pressupost (administrador/a) | res | es queda | la mateixa, amb el límit nou |
-| Canviar mida, disc o accés a models | no es pot: l'administrador/a crea un espai nou (exporta abans) | | |
+| Canviar models o pressupost de la clau (administrador/a) | res | es queda | la mateixa, amb els valors nous |
+| Canviar la mida de màquina (administrador/a, amb l'espai aturat) | s'engega amb la mida nova | es queda | la mateixa |
+| Engrandir el disc (administrador/a) i aturar i engegar | es reinicia | creix | la mateixa |
 | Esborrar l'espai (administrador/a) | **s'esborra** | **s'esborra**, sense còpia | **es revoca** |
 
 !!! danger "Esborrar és definitiu"
@@ -25,12 +26,12 @@ engegar.
 
 ## Els paràmetres de l'espai
 
-A la fitxa de l'espai, *Settings → Parameters* mostra els valors amb què es va crear: mida
-de màquina, disc, accés a models, pressupost i data de caducitat. Es fixen en crear l'espai
-i no es poden canviar després, ni tan sols l'administrador/a. Si el projecte necessita més
-pressupost, demana-ho: s'amplia sobre la clau sense tocar l'espai. Si necessita més màquina,
-més disc o altres models, l'administrador/a crea un espai nou: exporta abans el que vulgues
-conservar ([Exportar dades i codi](../guies/exportar-dades.md)).
+A la fitxa de l'espai, *Settings → Parameters* mostra la mida de màquina i el disc amb què
+es va crear l'espai, i el port de l'app web. Màquina i disc no es canvien des d'ací: si el
+projecte necessita més màquina, més disc, altres models o més pressupost, demana-ho a
+l'administrador/a, que ho canvia sense recrear l'espai (la màquina, amb l'espai aturat; el
+disc només pot créixer). La fitxa continuarà mostrant la mida inicial; els indicadors de
+CPU, RAM i disc mostren la real.
 
 L'únic paràmetre que pots editar tu és el **port de l'app web**
 ([Mostrar una app web](../guies/app-web.md)).
@@ -60,9 +61,9 @@ quan s'actualitza i es torna a engegar. El teu disc persistent no es toca.
 
 ## Caducitat
 
-Cada espai porta una data prevista de fi del projecte, com a etiqueta d'inventari. No apaga
-res per si sola: serveix perquè el Teclab revise els espais que ja no s'usen i acorde amb el
-projecte què fer-ne.
+Cada projecte té una data prevista de fi a l'inventari del Teclab. No apaga res per si sola:
+serveix perquè el Teclab revise els espais que ja no s'usen i acorde amb el projecte què
+fer-ne.
 
 ## Les portes
 

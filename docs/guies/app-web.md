@@ -26,11 +26,11 @@ Gradio `root_path`, FastAPI `--root-path`, Flask `APPLICATION_ROOT`, Django
 
 ## Passos
 
-1. Posa el **port** (per exemple `8501`) al paràmetre «Port de l'app web del projecte» de
-   l'espai: fitxa de l'espai → *Settings → Parameters*. És l'únic paràmetre que pots editar;
-   en desar, l'espai es reconstrueix (desa el que tingues obert). També ho pot fer
-   l'administrador/a en crear l'espai.
-2. Quan estiga actiu, a l'espai hi haurà la variable `APP_PORT`. Llança l'app escoltant-hi.
+1. El botó **App** ja hi és, i apunta al port `8080` (variable `APP_PORT`). Si el teu marc
+   necessita un altre port, canvia el paràmetre «Port de l'app web del projecte» a la fitxa
+   de l'espai → *Settings → Parameters*. És l'únic paràmetre que pots editar; en desar,
+   l'espai es reconstrueix (desa el que tingues obert).
+2. Llança l'app escoltant al port que diu `APP_PORT`.
    Exemple amb Streamlit:
 
     ```bash
@@ -50,7 +50,6 @@ Gradio `root_path`, FastAPI `--root-path`, Flask `APPLICATION_ROOT`, Django
 
 ## Si falla
 
-- **No hi ha botó App**: l'espai no té port configurat. Pas 1.
 - **El botó obri «connection refused»**: no hi ha res escoltant al port, o l'app escolta a
   `0.0.0.0` d'un altre port. Comprova `echo $APP_PORT` i la línia de llançament.
 - **La pàgina carrega però sense estils, o els enllaços donen 404**: l'app no serveix sota el

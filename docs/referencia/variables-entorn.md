@@ -10,7 +10,7 @@ Les posa la plataforma en engegar l'espai. Els teus programes les llegeixen de l
 | `LITELLM_BASE_URL` | Adreça de la passarel·la (amb `/v1`) | La plataforma |
 | `LITELLM_KEY` | Clau del projecte. **Mai al git** | La plataforma, en crear l'espai |
 | `LITELLM_MODEL` | Àlies per defecte: `chat-default` | La imatge |
-| `CLAUDE_MODEL_SONNET`, `CLAUDE_MODEL_HAIKU` | Noms al catàleg dels models de Claude que usa `claude`. Buides si l'espai no té accés a Claude | La plataforma |
+| `CLAUDE_MODEL_SONNET`, `CLAUDE_MODEL_HAIKU` | Noms al catàleg dels models de Claude que usa `claude` (si la clau no els té, la passarel·la respon 403) | La plataforma |
 | `CLAUDE_MODEL_OPUS` | Buida (no hi ha Opus al catàleg); `claude` usa el de Sonnet | La imatge |
 
 ## Base de dades
@@ -25,7 +25,7 @@ Les posa la plataforma en engegar l'espai. Els teus programes les llegeixen de l
 
 | Variable | Valor |
 |---|---|
-| `APP_PORT` | Port del botó «App», si l'espai en té; buida si no |
+| `APP_PORT` | Port del botó «App» (`8080` si no l'has canviat) |
 | `CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_NAME` | El teu usuari i el nom de l'espai; serveixen per a calcular la ruta de les apps (`/@usuari/espai/apps/...`) |
 
 ## Traces i certificats

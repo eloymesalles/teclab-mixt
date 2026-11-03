@@ -46,8 +46,8 @@ treballa sobre la mateixa carpeta que VS Code: `/home/teclab/work`.
 
 - **El botó JupyterLab dóna error de connexió**: JupyterLab encara està arrancant (uns segons
   després d'engegar l'espai). Espera i torna a prémer.
-- **`KeyError: 'LITELLM_KEY'`**: l'espai no té clau de projecte (accés a models «cap»).
-  Demana a l'administrador/a que l'active.
+- **`KeyError: 'LITELLM_KEY'`**: l'espai no té la clau de projecte a l'entorn. Atura i engega
+  l'espai; si persisteix, avisa l'administrador/a.
 - **Error 401 o 403 de la passarel·la**: la clau no té accés a eixe model, o el pressupost
   s'ha esgotat. Comprova els models amb `GET /models`
   (vegeu [Àlies i models](../referencia/alies-models.md)).

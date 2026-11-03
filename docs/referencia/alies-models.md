@@ -23,15 +23,10 @@ decideix l'administració de la passarel·la i pot canviar.
 
 ## Què pot cridar la teua clau
 
-Depén de l'**accés a models** que l'administrador/a va triar en crear l'espai:
-
-| Accés | Àlies i models disponibles | `claude` per la passarel·la |
-|---|---|---|
-| Cap | Cap clau: els exemples i `claude` no funcionen | No (sí `claude-compte`) |
-| Només Gemini | `chat-default`, `chat-llarg`, `embed-default` | No |
-| Gemini i Claude | Els anteriors més `claude-haiku-5.5` i `claude-sonnet-5.5` | Sí |
-
-Per a comprovar-ho:
+Ho decideix l'administrador/a a la passarel·la, clau per clau, i ho pot canviar en qualsevol
+moment sense tocar l'espai. Un espai nou comença amb els àlies `chat-default`, `chat-llarg`
+i `embed-default`; els models de Claude (`claude-haiku-5.5`, `claude-sonnet-5.5`, els que
+usa `claude`) s'afegeixen a petició del projecte. Per a comprovar què té la teua clau:
 
 ```bash
 curl -sS "$LITELLM_BASE_URL/models" -H "Authorization: Bearer $LITELLM_KEY"

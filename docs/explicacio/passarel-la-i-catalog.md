@@ -45,15 +45,16 @@ curl -sS "$LITELLM_BASE_URL/models" -H "Authorization: Bearer $LITELLM_KEY"
 Cada espai té la seua **clau del projecte** (una «clau virtual» de la passarel·la). La crea la
 plataforma en crear l'espai, amb tres propietats:
 
-- **Quins models** pot cridar: segons l'accés que l'administrador/a va triar (cap, només Gemini,
-  o Gemini i Claude).
+- **Quins models** pot cridar: un espai nou comença amb els àlies de Gemini; l'administrador/a
+  n'afegeix (per exemple, els de Claude) o en treu a la passarel·la.
 - **Quant pot gastar**: un pressupost màxim en dòlars (la unitat de la passarel·la). Quan
   s'esgota, les crides fallen fins que l'administrador/a l'amplia.
 - **Qui ha gastat què**: cada crida queda al registre de la passarel·la amb el nom de la clau,
   el model real i els tokens.
 
 La clau viu a l'entorn de l'espai i mor amb ell: en esborrar l'espai, la clau es revoca.
-Canviar l'accés o el pressupost genera una clau nova (la vella deixa de servir).
+Canviar els models o el pressupost es fa sobre la mateixa clau, sense tocar l'espai: no cal
+reiniciar res.
 
 !!! warning "La clau no és teua, és del projecte"
     No la copies a cap fitxer, notebook ni repositori. Si necessites la clau en un programa,
