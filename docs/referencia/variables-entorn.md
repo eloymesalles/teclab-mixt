@@ -25,8 +25,8 @@ Les posa la plataforma en engegar l'espai. Els teus programes les llegeixen de l
 
 | Variable | Valor |
 |---|---|
-| `APP_PORT` | Port del botó «App» (`8080` si no l'has canviat) |
-| `CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_NAME` | El teu usuari i el nom de l'espai; serveixen per a calcular la ruta de les apps (`/@usuari/espai/apps/...`) |
+| `APP_PORT` | Port del botó «App» (`8080` si no l'has canviat). L'app escolta ací, sense cap prefix de ruta |
+| `CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_NAME` | El teu usuari i el nom de l'espai (són els de l'adreça de l'app: `app--main--<espai>--<usuari>.plataforma.teclab.uji.es`) |
 
 ## Traces i certificats
 

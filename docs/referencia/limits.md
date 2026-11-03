@@ -37,4 +37,6 @@ No hi ha GPU.
 
 - Eixida a Internet només cap als dominis permesos (vegeu
   [La xarxa de l'espai](../explicacio/xarxa-de-l-espai.md)).
-- Cap connexió entrant. Les apps web es veuen només a través de Coder, amb sessió.
+- Cap connexió entrant directa. L'app web es veu a través de la plataforma, només des de la
+  xarxa de la UJI, i la comparteixes tu: amb sessió a Coder o sense (vegeu
+  [Mostrar una app web](../guies/app-web.md)).
