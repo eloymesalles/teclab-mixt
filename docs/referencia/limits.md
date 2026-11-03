@@ -2,8 +2,8 @@
 
 ## Màquina
 
-L'administrador/a tria la mida en crear l'espai i la pot canviar després (reinicia la
-màquina; el disc persistent es conserva).
+L'administrador/a tria la mida en crear l'espai i la pot canviar després, amb l'espai
+aturat (el disc persistent es conserva). La fitxa de l'espai mostra la mida inicial.
 
 | Mida | CPU | Memòria |
 |---|---|---|
@@ -15,21 +15,22 @@ No hi ha GPU.
 
 ## Disc
 
-- **Disc persistent** (`/home/teclab` i base de dades): 50 GB per defecte, ampliable fins a
-  500 GB. Només pot créixer, mai reduir-se. Ho demana l'administrador/a.
+- **Disc persistent** (`/home/teclab` i base de dades): 50 GB per defecte, ampliable. Només
+  pot créixer, mai reduir-se. Ho fa l'administrador/a; l'ampliació s'aplica en aturar i
+  engegar l'espai.
 - **Disc del sistema**: 20 GB, efímer: el que hi escrigues fora de `/home/teclab` es perd en
   cada arrancada.
 
 ## Temps
 
 - **Aturada per inactivitat**: 30 minuts sense activitat i l'espai s'atura sol.
-- **Caducitat**: data prevista de fi del projecte, com a etiqueta. No atura res sola.
+- **Caducitat**: data prevista de fi del projecte, a l'inventari del Teclab. No atura res sola.
 
 ## Passarel·la
 
-- **Pressupost de la clau**: entre 1 i 500 dòlars; 20 per defecte. Quan s'esgota, les crides
-  fallen fins que l'administrador/a l'amplia (genera una clau nova).
-- **Models**: només els de l'accés triat (vegeu [Àlies i models](alies-models.md)).
+- **Pressupost de la clau**: 20 dòlars per defecte. Quan s'esgota, les crides fallen fins que
+  l'administrador/a l'amplia (la clau és la mateixa).
+- **Models**: només els que té la clau (vegeu [Àlies i models](alies-models.md)).
 - Temps màxim d'una crida: 600 segons.
 
 ## Xarxa
