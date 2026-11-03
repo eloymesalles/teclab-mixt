@@ -1,63 +1,73 @@
 # Mostrar una app web
 
-Si el teu projecte té una interfície web (Streamlit, Gradio, FastAPI, Flask…), l'espai pot
-mostrar-la amb un botó **App** a la fitxa de Coder. No és una manera de servir-la: l'app
-només existeix mentre l'espai és engegat i tu l'has llançada.
-
-!!! note "Només tu la pots obrir"
-    Les apps de l'espai s'obrin sota l'adreça de la plataforma, i Coder no permet compartir-les
-    de manera segura amb altres persones (ni tan sols amb l'administrador/a): qualsevol altra
-    persona rep «404 - Application Not Found». Per a ensenyar-la, comparteix la pantalla. La
-    compartició arribarà amb les apps per subdomini (una adreça pròpia per a cada app), en
-    preparació.
+Si el teu projecte té una interfície web (Streamlit, Gradio, FastAPI, Flask…), l'espai la
+mostra amb el botó **App** de la fitxa de Coder, en una adreça pròpia, i tu decideixes qui la
+pot obrir. No és una manera de servir-la: l'app només existeix mentre l'espai és engegat i tu
+l'has llançada.
 
 ## Com funciona
 
-Coder reenvia el botó cap a un port de l'espai, sota una ruta pròpia. El contracte que ha
-de complir la teua app:
+Cada espai té una adreça reservada per a la seua app:
 
-1. Escoltar a `127.0.0.1` al port que diu la variable `APP_PORT`.
-2. Servir-se sota el prefix de ruta `/@<usuari>/<espai>/apps/app/` (l'espai el pot calcular
-   amb `CODER_WORKSPACE_OWNER_NAME` i `CODER_WORKSPACE_NAME`).
+```text
+https://app--main--<espai>--<usuari>.plataforma.teclab.uji.es
+```
 
-La majoria de marcs tenen un paràmetre per al prefix: Streamlit `--server.baseUrlPath`,
-Gradio `root_path`, FastAPI `--root-path`, Flask `APPLICATION_ROOT`, Django
-`FORCE_SCRIPT_NAME`, Next.js `basePath`, Vite `base`.
+Coder la reenvia cap a un port de l'espai. El contracte que ha de complir la teua app és un
+de sol: **escoltar a `127.0.0.1` al port que diu la variable `APP_PORT`** (`8080` si no l'has
+canviat). No cal cap prefix de ruta ni cap configuració especial del marc.
 
 ## Passos
 
-1. El botó **App** ja hi és, i apunta al port `8080` (variable `APP_PORT`). Si el teu marc
-   necessita un altre port, canvia el paràmetre «Port de l'app web del projecte» a la fitxa
-   de l'espai → *Settings → Parameters*. És l'únic paràmetre que pots editar; en desar,
-   l'espai es reconstrueix (desa el que tingues obert).
-2. Llança l'app escoltant al port que diu `APP_PORT`.
-   Exemple amb Streamlit:
+1. Llança l'app escoltant al port d'`APP_PORT`. Exemple amb Streamlit:
 
     ```bash
-    RUTA="/@${CODER_WORKSPACE_OWNER_NAME}/${CODER_WORKSPACE_NAME}/apps/app"
-    streamlit run app.py --server.address 127.0.0.1 --server.port "$APP_PORT" \
-      --server.baseUrlPath "$RUTA"
+    streamlit run app.py --server.address 127.0.0.1 --server.port "$APP_PORT"
     ```
 
-3. A la fitxa de l'espai, prem **App**.
+    Si el teu marc necessita un altre port, canvia el paràmetre «Port de l'app web del
+    projecte» a la fitxa de l'espai → *Settings → Parameters* (l'espai es reconstrueix: desa
+    el que tingues obert).
+
+2. A la fitxa de l'espai, prem **App**. S'obri en una pestanya nova, amb l'adreça de dalt.
+
+3. Per a ensenyar-la a altres persones, tria qui la pot obrir al paràmetre **«Qui pot obrir
+   l'app web»** (fitxa → *Settings → Parameters*; l'espai es reconstrueix i cal tornar a
+   llançar l'app):
+
+    | Opció | Qui la veu |
+    |---|---|
+    | Només jo (per defecte) | Tu. Qualsevol altra persona rep «404 - Application Not Found» |
+    | Qualsevol persona amb sessió a Coder | Qui entre a la plataforma amb el seu compte de la UJI |
+    | Sense sessió | Qualsevol persona de la xarxa de la UJI (campus o VPN), sense entrar a Coder |
+
+    Després, passa'ls l'adreça. Des de fora de la xarxa de la UJI no s'hi arriba en cap cas.
 
 ## Com saber que ha funcionat
 
-- El botó App obri la teua interfície en una pestanya nova, amb una adreça que comença per
-  la de la plataforma i conté `/apps/app/`.
-- Una altra persona amb la mateixa adreça rep «404 - Application Not Found»: és el
-  comportament esperat.
+- El botó App obri la teua interfície en una pestanya nova, a una adreça que comença per
+  `app--main--`, amb el cadenat del navegador en verd.
+- Amb «Només jo», una altra persona amb la mateixa adreça rep «404 - Application Not Found».
+- Amb «Qualsevol persona amb sessió a Coder», una companya entra a la plataforma, obri
+  l'adreça i veu l'app.
 
 ## Si falla
 
-- **El botó obri «connection refused»**: no hi ha res escoltant al port, o l'app escolta a
-  `0.0.0.0` d'un altre port. Comprova `echo $APP_PORT` i la línia de llançament.
-- **La pàgina carrega però sense estils, o els enllaços donen 404**: l'app no serveix sota el
-  prefix de ruta. Configura el paràmetre del teu marc (llista de dalt).
-- **Una altra persona veu «404 - Application Not Found»**: només tu pots obrir l'app (vegeu
-  l'avís de l'inici).
+- **El botó obri «connection refused» o una pàgina en blanc**: no hi ha res escoltant al port,
+  o l'app escolta a `0.0.0.0` d'un altre port. Comprova `echo $APP_PORT` i la línia de
+  llançament.
+- **Els enllaços de l'app porten a `/@usuari/...` o a una ruta estranya**: l'app encara té
+  configurat un prefix de ruta d'una versió anterior d'esta guia. Lleva'l: ara l'app es
+  serveix a l'arrel de la seua adreça.
+- **Una altra persona veu «404 - Application Not Found»**: l'app és «Només jo», o l'espai
+  està aturat. Canvia el paràmetre (pas 3) i torna a llançar l'app.
 - **L'app desapareix al cap d'una estona**: l'espai s'ha aturat per inactivitat. Torna'l a
   engegar i torna a llançar l'app.
+
+!!! warning "Qui la pot veure, ho pot usar tot"
+    Si comparteixes l'app, qui l'obri pot fer tot el que l'app permet: formularis, pujades,
+    crides a la passarel·la amb la clau del projecte (si l'app les fa). Comparteix-la només
+    mentre l'ensenyes, i torna a «Només jo» després.
 
 !!! note "Per a ensenyar, no per a servir"
     Si el projecte necessita una app disponible de manera estable per a usuaris, és un
