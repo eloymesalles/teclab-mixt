@@ -18,7 +18,7 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   git, `gh` (CLI de GitHub, `.deb` oficial amb suma verificada; autenticació a mà de cada
   persona amb `gh auth login`), ruff, detect-secrets, PocketBase (binari, no s'engega),
   exemples. **Versions
-  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.5.0` (cada canvi d'imatge puja
+  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.6.0` (cada canvi d'imatge puja
   la versió; docker-stack la fixa als compose i a la plantilla de Coder; al Teclab es fixa
   per empremta al registre `teclab`). Porta el client `psql` 16 (repositori PGDG, versió
   fixada) i `psycopg`.
@@ -36,6 +36,13 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   de l'usuari (`CLAUDE_CONFIG_DIR=~/.claude-compte`, cap variable de la passarel·la, `/login`).
   Dues ordres perquè Claude Code prioritza sempre la passarel·la sobre el compte. La clau
   mai a cap fitxer.
+- `bin/teclab-consum` — despesa, pressupost i models de la clau del projecte, per a l'usuari:
+  `GET /key/info` de LiteLLM amb `LITELLM_KEY` (una clau pot consultar-se a si mateixa; no
+  pot llistar-ne d'altres). Python 3 només amb biblioteca estàndard (la imatge no porta `jq`),
+  base sense `/v1` com `bin/claude`, confiança en la CA per `SSL_CERT_FILE`, la clau mai a cap
+  fitxer ni per pantalla; `--breu` (una línia, per a la fitxa de Coder si un dia cal) i
+  `--json`. Codis 0/1/2. El detall de peticions per clau (`/key/spend/report`, *Key Activity*)
+  és d'empresa a LiteLLM i no està disponible.
 - `examples/` — `resum.py` i un notebook que criden la passarel·la LiteLLM
   (`LITELLM_BASE_URL`, `LITELLM_KEY`, obligatòries: surten amb missatge si falten);
   `dades.py` + `mostra.csv`, l'adaptador de dades (`DATA_SOURCE=csv|postgres`);

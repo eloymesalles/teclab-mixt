@@ -54,8 +54,8 @@ Les dos ordres no es barregen: `claude` usa `~/.claude` i `claude-compte` usa
 ## Si falla
 
 - **Error 401/403 en la primera resposta**: la clau no inclou els models de Claude (és el
-  cas d'un espai nou), o el pressupost s'ha esgotat. Comprova-ho amb `GET /models` (vegeu
-  [Àlies i models](../referencia/alies-models.md)) i demana-ho a l'administrador/a.
+  cas d'un espai nou), o el pressupost s'ha esgotat. Comprova-ho amb `teclab-consum` (models
+  i pressupost de la clau) i demana-ho a l'administrador/a.
 - **Error 400 amb un camp desconegut**: una capacitat experimental que la passarel·la no
   admet. Per defecte estan desactivades; si les has activat (`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=0`),
   torna-les a desactivar.

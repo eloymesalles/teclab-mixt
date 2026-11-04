@@ -89,7 +89,7 @@ activitat.
 - **`Falta la variable d'entorn LITELLM_KEY`**: l'espai no té la clau a l'entorn. Atura i
   engega l'espai; si persisteix, avisa l'administrador/a.
 - **Error 401/403 en `resum.py`**: la clau no té accés a `chat-default` o el pressupost s'ha
-  esgotat. Avisa l'administrador/a.
+  esgotat. Comprova-ho amb `teclab-consum` i avisa l'administrador/a.
 - **`psql: connection refused`**: la base de dades encara arranca. Espera un minut i repeteix.
 
 ## Següents passos

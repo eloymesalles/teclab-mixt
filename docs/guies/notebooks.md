@@ -49,8 +49,7 @@ treballa sobre la mateixa carpeta que VS Code: `/home/teclab/work`.
 - **`KeyError: 'LITELLM_KEY'`**: l'espai no té la clau de projecte a l'entorn. Atura i engega
   l'espai; si persisteix, avisa l'administrador/a.
 - **Error 401 o 403 de la passarel·la**: la clau no té accés a eixe model, o el pressupost
-  s'ha esgotat. Comprova els models amb `GET /models`
-  (vegeu [Àlies i models](../referencia/alies-models.md)).
+  s'ha esgotat. Comprova-ho amb `teclab-consum` al terminal (models i pressupost de la clau).
 - **El nucli es reinicia o es queda sense memòria**: la mida de l'espai és petita per al que
   fas. Tanca altres notebooks (*Kernel → Shut Down All Kernels*) o demana una mida més gran.
 - **Has perdut un notebook en aturar l'espai**: només es conserva el que és a
