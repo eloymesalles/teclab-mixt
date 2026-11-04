@@ -1,7 +1,7 @@
 # La imatge: eines i versions
 
 L'espai arranca des de la imatge `teclab-mixt`, que porta estes eines amb versió fixada. Les
-versions corresponen a la imatge 0.5.0.
+versions corresponen a la imatge 0.6.0.
 
 | Peça | Versió | Per a què |
 |---|---|---|
@@ -16,6 +16,7 @@ versions corresponen a la imatge 0.5.0.
 | `opentelemetry-sdk` + `opentelemetry-exporter-otlp` | 1.45.0 | Traces dels agents |
 | git, ruff, detect-secrets | — / 0.17.0 / 1.5.0 | Control de versions, qualitat, detecció de secrets |
 | `gh` (CLI de GitHub) | 2.102.0 | Repositoris de GitHub des del terminal |
+| `teclab-consum` | — | Quant has gastat de la clau del projecte (vegeu [La passarel·la i el catàleg](../explicacio/passarel-la-i-catalog.md)) |
 | PocketBase (binari a `/opt/pocketbase`) | 0.40.5 | Backend lleuger; no s'engega per defecte |
 | Eines del sistema | — | `curl`, `nano`, `less`, `unzip`, `openssh-client` |
 

@@ -4,7 +4,7 @@
 # privada de l'espai.
 #
 # Pujar-la (des del contenidor del servidor, CLI autenticada; vegeu README.md):
-#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.4.0"
+#   coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.6.0"
 #   coder templates edit teclab-mixt --default-ttl 30m -y
 # La clau és una variable de plantilla (Coder la guarda xifrada); mai al codi. Coder
 # conserva els valors de les variables entre pushes: per canviar d'imatge cal passar-la.
@@ -36,7 +36,7 @@ variable "litellm_key" {
 variable "workspace_image" {
   description = "Imatge d'espai de treball (ha d'existir al daemon de Docker del servidor)."
   type        = string
-  default     = "teclab-mixt:0.4.0"
+  default     = "teclab-mixt:0.6.0"
 }
 
 variable "db_image" {

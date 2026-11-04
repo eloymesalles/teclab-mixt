@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+# /usr/local/bin/teclab-consum: quant ha gastat la clau del projecte a la passarel·la.
+#
+# Consulta /key/info de LiteLLM amb la clau de l'espai (LITELLM_KEY) i mostra la despesa
+# acumulada, el pressupost, el que queda i els models permesos. Una clau pot consultar-se a si
+# mateixa i només a si mateixa. La clau no s'escriu enlloc ni ix per pantalla. Només
+# biblioteca estàndard: la confiança en la CA del Teclab ve de SSL_CERT_FILE
+# (teclab-entrypoint), sense cap excepció de verificació.
+#
+#   teclab-consum           resum llegible
+#   teclab-consum --breu    una sola línia («3,21 $ de 20,00 $ (16 %)»)
+#   teclab-consum --json    la informació de la clau tal com la torna la passarel·la
+#
+# Codis d'eixida: 0 bé; 1 la passarel·la no respon o rebutja la clau; 2 falten variables.
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+from datetime import datetime, timezone
+
+NOM = "teclab-consum"
+
+
+def error(missatge, codi):
+    print(f"{NOM}: {missatge}", file=sys.stderr)
+    return codi
+
+
+def dolars(valor):
+    """Format en dòlars amb coma decimal: 3.2 -> «3,20 $»; menys d'un cèntim -> «< 0,01 $»."""
+    if 0 < valor < 0.005:
+        return "< 0,01 $"
+    return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") + " $"
+
+
+def data(valor):
+    """ISO 8601 de LiteLLM -> «dd/mm/aaaa»; None si no hi ha valor."""
+    if not valor:
+        return None
+    try:
+        return datetime.fromisoformat(str(valor).replace("Z", "+00:00")).astimezone(timezone.utc).strftime("%d/%m/%Y")
+    except ValueError:
+        return str(valor)
+
+
+def main(argv):
+    if "-h" in argv or "--help" in argv or "--ajuda" in argv:
+        print("Ús: teclab-consum [--breu | --json]\n"
+              "Mostra la despesa i el pressupost de la clau del projecte a la passarel·la.")
+        return 0
+    base = os.environ.get("LITELLM_BASE_URL", "").strip()
+    clau = os.environ.get("LITELLM_KEY", "").strip()
+    if not base or not clau:
+        return error("calen LITELLM_BASE_URL i LITELLM_KEY a l'entorn de l'espai (les posa la plataforma).", 2)
+    # /key/info és a l'arrel de la passarel·la, no sota /v1.
+    base = base.rstrip("/")
+    if base.endswith("/v1"):
+        base = base[:-3]
+
+    peticio = urllib.request.Request(
+        base + "/key/info",
+        headers={"Authorization": "Bearer " + clau, "Accept": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(peticio, timeout=15) as resposta:
+            dades = json.load(resposta)
+    except urllib.error.HTTPError as e:
+        if e.code in (401, 403):
+            return error("la passarel·la no accepta la clau de l'espai (%d). Avisa l'administrador/a." % e.code, 1)
+        return error(f"la passarel·la ha respost {e.code} a {base}/key/info.", 1)
+    except (urllib.error.URLError, OSError) as e:
+        motiu = getattr(e, "reason", e)
+        return error(f"no s'ha pogut connectar amb la passarel·la ({base}): {motiu}", 1)
+    except ValueError:
+        return error("la passarel·la ha tornat una resposta que no és JSON.", 1)
+
+    info = dades.get("info") if isinstance(dades, dict) else None
+    if not isinstance(info, dict):
+        return error("la passarel·la ha tornat una resposta sense el camp «info».", 1)
+
+    if "--json" in argv:
+        # Sense l'identificador de la clau (no és la clau secreta, però tampoc cal escampar-lo).
+        info = {k: v for k, v in info.items() if k not in ("token", "key_name")}
+        print(json.dumps(info, ensure_ascii=False, indent=2))
+        return 0
+
+    despesa = float(info.get("spend") or 0.0)
+    pressupost = info.get("max_budget")
+    pressupost = float(pressupost) if pressupost is not None else None
+    models = info.get("models") or []
+    if models == ["all-proxy-models"]:
+        models_text = "tots els del catàleg"
+    elif models:
+        models_text = ", ".join(str(m) for m in models)
+    else:
+        models_text = "cap"
+
+    if pressupost:
+        percent = min(999, round(100 * despesa / pressupost))
+        queden = max(0.0, pressupost - despesa)
+        resum = f"{dolars(despesa)} de {dolars(pressupost)} ({percent} %)"
+    else:
+        percent = None
+        queden = None
+        resum = f"{dolars(despesa)} (sense límit)"
+
+    if "--breu" in argv:
+        print(resum)
+        return 0
+
+    print(f"Clau del projecte: {info.get('key_alias') or '(sense àlies)'}")
+    if queden is not None:
+        print(f"Despesa: {resum}  ·  queden {dolars(queden)}")
+    else:
+        print(f"Despesa: {resum}")
+    print(f"Models: {models_text}")
+    reinici = data(info.get("budget_reset_at"))
+    if reinici:
+        print(f"El pressupost es reinicia el {reinici}")
+    caducitat = data(info.get("expires"))
+    if caducitat:
+        print(f"La clau caduca el {caducitat}")
+    if info.get("blocked"):
+        print("Atenció: la clau està bloquejada. Avisa l'administrador/a.")
+    elif pressupost is not None and despesa >= pressupost:
+        print("Atenció: el pressupost s'ha esgotat; les crides fallaran fins que l'administrador/a l'amplie.")
+    elif percent is not None and percent >= 80:
+        print("Atenció: queda menys del 20 % del pressupost.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

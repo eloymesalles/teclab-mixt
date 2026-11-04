@@ -1,6 +1,6 @@
 # Plantilla de Coder «teclab-mixt»
 
-Crea un espai de treball per projecte amb la imatge `teclab-mixt:0.4.0`: **VS Code**
+Crea un espai de treball per projecte amb la imatge `teclab-mixt:0.6.0`: **VS Code**
 (code-server), **JupyterLab** i, si l'espai indica un port, un botó genèric **App** per a la
 UI web del projecte, **Claude Code** al terminal, una **base de dades PostgreSQL pròpia**
 (sidecar), 2 vCPU i 3 GiB, i les variables de la
@@ -15,7 +15,7 @@ variable de plantilla: l'administració pot canviar l'àlies sense tocar cap esp
   clau virtual de LiteLLM és a l'entorn del contenidor del servidor (`TF_VAR_litellm_key`,
   des del `.env` de docker-stack) només per poder passar-la al `push`; la clau no és enlloc
   d'aquest repo.
-- La imatge `teclab-mixt:0.4.0` construïda al daemon de Docker del servidor.
+- La imatge `teclab-mixt:0.6.0` construïda al daemon de Docker del servidor.
 - Xarxes Docker `demo-coder` i `demo-edge` existents (les crea el compose de docker-stack).
 - Accés a Docker Hub des del daemon per baixar `pgvector/pgvector:0.8.7-pg16` la primera
   vegada que es crea un espai (`docker_image` amb `keep_locally`; després queda al host).
@@ -40,7 +40,7 @@ el mateix `push`: **Coder conserva els valors de les variables del push anterior
 per canviar d'imatge cal passar-la explícitament:
 
 ```bash
-coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.4.0"
+coder templates push teclab-mixt -d /tmp/teclab-mixt -y --variable "litellm_key=$TF_VAR_litellm_key" --variable "workspace_image=teclab-mixt:0.6.0"
 ```
 
 Els espais existents passen a la versió nova de la plantilla (i de la imatge) en

@@ -50,11 +50,34 @@ plataforma en crear l'espai, amb tres propietats:
 - **Quant pot gastar**: un pressupost màxim en dòlars (la unitat de la passarel·la). Quan
   s'esgota, les crides fallen fins que l'administrador/a l'amplia.
 - **Qui ha gastat què**: cada crida queda al registre de la passarel·la amb el nom de la clau,
-  el model real i els tokens.
+  el model real i els tokens. Tu pots veure la despesa acumulada amb `teclab-consum` (secció
+  de sota).
 
 La clau viu a l'entorn de l'espai i mor amb ell: en esborrar l'espai, la clau es revoca.
 Canviar els models o el pressupost es fa sobre la mateixa clau, sense tocar l'espai: no cal
 reiniciar res.
+
+## Quant has gastat
+
+Al terminal de l'espai:
+
+```bash
+teclab-consum
+```
+
+```text
+Clau del projecte: espai-usuari-projecte
+Despesa: 3,21 $ de 20,00 $ (16 %)  ·  queden 16,79 $
+Models: chat-default, chat-llarg, embed-default
+```
+
+La despesa és la que la passarel·la ha comptat fins a l'última crida (en dòlars, la unitat de
+la passarel·la). Si queda menys del 20 % o el pressupost s'ha esgotat, l'ordre ho avisa. Amb
+`--breu` mostra només la línia de la despesa; amb `--json`, tota la informació de la clau tal
+com la torna la passarel·la (per a programes).
+
+El que no pots veure des de l'espai és el detall crida a crida ni el nombre de peticions:
+això ho té l'administrador/a a l'administració de la passarel·la.
 
 !!! warning "La clau no és teua, és del projecte"
     No la copies a cap fitxer, notebook ni repositori. Si necessites la clau en un programa,

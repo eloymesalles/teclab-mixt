@@ -92,6 +92,10 @@ jobs:
           # Cap valor de plataforma cuit: LITELLM_BASE_URL buida i els exemples ho diuen
           r sh -c '[ -z "$LITELLM_BASE_URL" ] && [ "$LITELLM_MODEL" = chat-default ] && echo "entorn neutre ok"'
           r python /home/teclab/examples/resum.py && exit 1 || echo "resum.py sense variables surt amb error (ok)"
+          # «teclab-consum»: sense variables, codi 2; amb passarel·la inaccessible, codi 1 i missatge
+          r teclab-consum --ajuda
+          r teclab-consum && exit 1 || echo "teclab-consum sense variables surt amb error (ok)"
+          docker run --rm -e LITELLM_BASE_URL=https://prova.invalid/v1 -e LITELLM_KEY=prova "${IMATGE}:prova" teclab-consum && exit 1 || echo "teclab-consum sense passarel·la surt amb error (ok)"
           # Sense TECLAB_CA_CERT l'entrada no fa res; amb una ruta inexistent avisa i arrenca
           docker run --rm -e TECLAB_CA_CERT=/no/hi/es "${IMATGE}:prova" sh -c 'echo "entrada ok"'
           r sh -c 'which codex && exit 1 || echo "sense codex (ok)"'

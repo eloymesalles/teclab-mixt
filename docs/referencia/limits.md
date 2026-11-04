@@ -29,7 +29,8 @@ No hi ha GPU.
 ## Passarel·la
 
 - **Pressupost de la clau**: 20 dòlars per defecte. Quan s'esgota, les crides fallen fins que
-  l'administrador/a l'amplia (la clau és la mateixa).
+  l'administrador/a l'amplia (la clau és la mateixa). Mira quant has gastat amb
+  `teclab-consum`.
 - **Models**: només els que té la clau (vegeu [Àlies i models](alies-models.md)).
 - Temps màxim d'una crida: 600 segons.
 

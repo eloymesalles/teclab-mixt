@@ -73,6 +73,10 @@ RUN npm install -g --no-fund --no-audit --allow-scripts=@anthropic-ai/claude-cod
  && /usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe --version
 COPY --chmod=755 bin/claude bin/claude-compte /usr/local/bin/
 
+# ── teclab-consum: despesa i pressupost de la clau del projecte (GET /key/info de LiteLLM) ──
+# Python de la base, només biblioteca estàndard; la confiança en la CA ve de l'entrada.
+COPY --chmod=755 bin/teclab-consum /usr/local/bin/
+
 # ── PocketBase (binari, no s'engega per defecte) ──
 RUN curl -fsSL "https://github.com/pocketbase/pocketbase/releases/download/v${POCKETBASE_VERSION}/pocketbase_${POCKETBASE_VERSION}_linux_amd64.zip" -o /tmp/pb.zip \
  && mkdir -p /opt/pocketbase \
