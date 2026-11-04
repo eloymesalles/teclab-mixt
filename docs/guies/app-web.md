@@ -10,7 +10,7 @@ l'has llançada.
 Cada espai té una adreça reservada per a la seua app:
 
 ```text
-https://app--main--<espai>--<usuari>.plataforma.teclab.uji.es
+https://app--<espai>--<usuari>.plataforma.teclab.uji.es
 ```
 
 Coder la reenvia cap a un port de l'espai. El contracte que ha de complir la teua app és un
@@ -19,11 +19,17 @@ canviat). No cal cap prefix de ruta ni cap configuració especial del marc.
 
 ## Passos
 
-1. Llança l'app escoltant al port d'`APP_PORT`. Exemple amb Streamlit:
+1. Llança l'app escoltant al port d'`APP_PORT`, **des de la carpeta del projecte**
+   (`cd ~/work/<projecte>`). Exemple amb Streamlit:
 
     ```bash
     streamlit run app.py --server.address 127.0.0.1 --server.port "$APP_PORT"
     ```
+
+    Compte amb els servidors que serveixen fitxers (`python -m http.server`, per exemple):
+    mostren tot el que hi ha a la carpeta des d'on els llances. Mai des de `/home/teclab`,
+    on hi ha l'historial del terminal, les credencials de `gh` i de `claude-compte` i la
+    configuració.
 
     Si el teu marc necessita un altre port, canvia el paràmetre «Port de l'app web del
     projecte» a la fitxa de l'espai → *Settings → Parameters* (l'espai es reconstrueix: desa
@@ -37,7 +43,7 @@ canviat). No cal cap prefix de ruta ni cap configuració especial del marc.
 
     | Opció | Qui la veu |
     |---|---|
-    | Només jo (per defecte) | Tu. Qualsevol altra persona rep «404 - Application Not Found» |
+    | Només jo (per defecte) | Tu (i les persones administradores, com a tot l'espai). Qualsevol altra persona rep «404 - Application Not Found» |
     | Qualsevol persona amb sessió a Coder | Qui entre a la plataforma amb el seu compte de la UJI |
     | Sense sessió | Qualsevol persona de la xarxa de la UJI (campus o VPN), sense entrar a Coder |
 
@@ -46,7 +52,7 @@ canviat). No cal cap prefix de ruta ni cap configuració especial del marc.
 ## Com saber que ha funcionat
 
 - El botó App obri la teua interfície en una pestanya nova, a una adreça que comença per
-  `app--main--`, amb el cadenat del navegador en verd.
+  `app--`, amb el cadenat del navegador en verd.
 - Amb «Només jo», una altra persona amb la mateixa adreça rep «404 - Application Not Found».
 - Amb «Qualsevol persona amb sessió a Coder», una companya entra a la plataforma, obri
   l'adreça i veu l'app.
