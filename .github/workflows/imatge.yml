@@ -105,7 +105,7 @@ jobs:
           r teclab-paquets afegir 'no vàlid;' && exit 1 || echo "teclab-paquets rebutja noms no vàlids (ok)"
           r teclab-paquets && exit 1 || echo "teclab-paquets sense ordre surt amb error (ok)"
           # Amb una llista al disc, l'entrada la restaura en segon pla i l'ordre arrenca igual
-          docker run --rm "${IMATGE}:prova" sh -c 'mkdir -p ~/.teclab && echo sl > ~/.teclab/paquets && teclab-entrypoint sh -c "for i in \$(seq 1 90); do grep -q fet ~/.teclab/paquets.log 2>/dev/null && break; sleep 2; done; cat ~/.teclab/paquets.log; command -v sl"'
+          docker run --rm "${IMATGE}:prova" sh -c 'mkdir -p ~/.teclab && echo hello > ~/.teclab/paquets && teclab-entrypoint sh -c "for i in \$(seq 1 90); do grep -q ^teclab-paquets:.fet ~/.teclab/paquets.log 2>/dev/null && break; sleep 2; done; tail -n 3 ~/.teclab/paquets.log; hello"'
 
       # ---- Publicació (només amb versió i amb les variables del repo) ----------------------
 
