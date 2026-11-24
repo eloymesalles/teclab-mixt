@@ -18,16 +18,29 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   git, `gh` (CLI de GitHub, `.deb` oficial amb suma verificada; autenticació a mà de cada
   persona amb `gh auth login`), ruff, detect-secrets, PocketBase (binari, no s'engega),
   exemples. **Versions
-  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.6.0` (cada canvi d'imatge puja
+  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.7.0` (cada canvi d'imatge puja
   la versió; docker-stack la fixa als compose i a la plantilla de Coder; al Teclab es fixa
   per empremta al registre `teclab`). Porta el client `psql` 16 (repositori PGDG, versió
-  fixada) i `psycopg`.
+  fixada; la font PGDG es lleva després d'instal·lar) i `psycopg`. L'usuari `teclab` té
+  **`sudo` sense contrasenya** (`/etc/sudoers.d/teclab`, decisió del 24/11/2026): els
+  projectes instal·len paquets del sistema sense esperar una imatge nova; el contenidor corre
+  sense capacitats ni privilegis, així que root dins no dona res fora. No tornar a l'usuari
+  sense `sudo` sense una decisió nova.
 - `bin/teclab-entrypoint` — entrada del contenidor (`tini` → script → ordre): si la plataforma
   passa `TECLAB_CA_CERT` (ruta del certificat de la CA del Teclab muntat al contenidor), escriu
   `~/.teclab/ca-bundle.pem` (CA públiques + CA del Teclab) i exporta `SSL_CERT_FILE`,
   `CURL_CA_BUNDLE`, `GIT_SSL_CAINFO`, `REQUESTS_CA_BUNDLE` (paquet combinat) i
   `NODE_EXTRA_CA_CERTS` (la CA sola). Sense la variable, no fa res. **Cap `verify=False` ni
-  `curl -k` al repo**: la confiança es resol aquí, no amb excepcions.
+  `curl -k` al repo**: la confiança es resol aquí, no amb excepcions. Després, si
+  `~/.teclab/paquets` té res i `sudo -n` respon, llança `teclab-paquets restaurar` en segon pla
+  (registre a `~/.teclab/paquets.log`) i executa l'ordre sense esperar.
+- `bin/teclab-paquets` — llista de paquets `apt` de l'usuari que ha de sobreviure a una imatge
+  nova (`~/.teclab/paquets`, un nom per línia, al disc persistent): `afegir` (instal·la i
+  apunta), `treure`, `llista`, `restaurar` (l'usa l'entrada). POSIX `sh`, `sudo -n env
+  DEBIAN_FRONTEND=noninteractive`, només noms vàlids d'apt (`[a-z0-9+.-]`), `apt-get update`
+  tolerant (un repositori que no responga avisa i no atura). Al sandbox del Teclab, el
+  contenidor es reutilitza entre aturades (`teclab-gcp` #88) i només es recrea amb imatge nova:
+  la llista cobreix just eixe cas.
 - `bin/claude` i `bin/claude-compte` — els dos modes de Claude Code (`@anthropic-ai/claude-code`,
   versió fixada, `DISABLE_AUTOUPDATER=1`). `claude`: passarel·la del projecte
   (`ANTHROPIC_BASE_URL` = `LITELLM_BASE_URL` sense `/v1`, `ANTHROPIC_AUTH_TOKEN` =

@@ -1,0 +1,89 @@
+#!/bin/sh
+# teclab-paquets: paquets del sistema (apt) de l'espai que han de sobreviure a una
+# actualització de la imatge. Instal·lat a /usr/local/bin/teclab-paquets.
+#
+# L'usuari teclab té sudo sense contrasenya i pot instal·lar el que vulga amb apt; però el
+# contenidor torna a la imatge quan la plataforma la canvia de versió (al sandbox del Teclab,
+# amb l'«Update» de l'espai). Esta ordre manté una llista a la carpeta personal, que és al
+# disc persistent, i l'entrada del contenidor (teclab-entrypoint) la reinstal·la en arrancar.
+#
+#   teclab-paquets afegir <paquet…>    instal·la i apunta a la llista
+#   teclab-paquets treure <paquet…>    lleva de la llista i desinstal·la
+#   teclab-paquets llista              mostra la llista
+#   teclab-paquets restaurar           instal·la tot el de la llista (ho fa l'entrada)
+#
+# La llista és ~/.teclab/paquets: un nom de paquet per línia (es pot editar a mà). Només
+# noms vàlids d'apt (lletres minúscules, xifres i + - .). Codis: 0 bé, 1 error d'apt, 2 ús.
+set -eu
+
+LLISTA="${TECLAB_PAQUETS:-$HOME/.teclab/paquets}"
+
+us() {
+  cat >&2 <<EOF
+Ús: teclab-paquets afegir <paquet…> | treure <paquet…> | llista | restaurar
+Llista: $LLISTA (un paquet per línia; la reinstal·la l'espai en arrancar)
+EOF
+  exit 2
+}
+
+valida() {
+  for p in "$@"; do
+    case "$p" in
+      *[!a-z0-9+.-]*|"") echo "teclab-paquets: «$p» no és un nom de paquet d'apt vàlid" >&2; exit 2 ;;
+    esac
+  done
+}
+
+# sudo -n: sense demanar contrasenya mai (si no es pot, error clar, no un prompt penjat).
+# sudo neteja l'entorn: DEBIAN_FRONTEND es passa explícitament perquè apt no pregunte res.
+arrel() { sudo -n env DEBIAN_FRONTEND=noninteractive "$@"; }
+
+llegeix() { [ -f "$LLISTA" ] && grep -v '^[[:space:]]*$' "$LLISTA" | sort -u || true; }
+
+instal_la() {
+  [ $# -gt 0 ] || return 0
+  # Si algun repositori no respon (llista blanca de dominis de la plataforma), s'avisa i es
+  # prova igualment amb els índexs que s'hagen pogut baixar.
+  arrel apt-get update -qq || echo "teclab-paquets: avís: algun repositori d'apt no ha respost" >&2
+  arrel apt-get install -y -qq --no-install-recommends "$@"
+  arrel rm -rf /var/lib/apt/lists/*
+}
+
+ordre="${1:-}"; [ $# -gt 0 ] && shift
+case "$ordre" in
+  afegir)
+    [ $# -gt 0 ] || us
+    valida "$@"
+    instal_la "$@"
+    mkdir -p "$(dirname "$LLISTA")"
+    { llegeix; printf '%s\n' "$@"; } | sort -u > "$LLISTA.tmp" && mv "$LLISTA.tmp" "$LLISTA"
+    echo "teclab-paquets: instal·lat i apuntat a $LLISTA: $*"
+    ;;
+  treure)
+    [ $# -gt 0 ] || us
+    valida "$@"
+    if [ -f "$LLISTA" ]; then
+      resta="$(llegeix)"
+      for p in "$@"; do resta="$(printf '%s\n' "$resta" | grep -vx "$p" || true)"; done
+      printf '%s\n' "$resta" | grep -v '^$' > "$LLISTA.tmp" || true
+      mv "$LLISTA.tmp" "$LLISTA"
+    fi
+    arrel apt-get remove -y -qq "$@" || true
+    echo "teclab-paquets: fora de la llista: $*"
+    ;;
+  llista)
+    llegeix
+    ;;
+  restaurar)
+    # shellcheck disable=SC2046
+    set -- $(llegeix)
+    [ $# -gt 0 ] || { echo "teclab-paquets: la llista és buida"; exit 0; }
+    valida "$@"
+    echo "teclab-paquets: restaurant $#: $*"
+    instal_la "$@"
+    echo "teclab-paquets: fet"
+    ;;
+  *)
+    us
+    ;;
+esac

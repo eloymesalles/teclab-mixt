@@ -38,12 +38,16 @@ L'únic paràmetre que pots editar tu és el **port de l'app web**
 
 ## Què es conserva i què no
 
-- **Es conserva** entre aturades: tot el que hi ha a `/home/teclab` (el teu treball, la
-  configuració de VS Code, les credencials de `gh` i de `claude-compte`) i la base de dades.
-- **No es conserva**: el que hages instal·lat fora de la teua carpeta (paquets del sistema,
-  programes a `/usr`). L'espai torna a la imatge en cada arrancada. Els paquets de Python
-  instal·lats amb `pip install --user` o en un entorn virtual dins de `/home/teclab` sí que es
-  queden.
+- **Es conserva sempre**: tot el que hi ha a `/home/teclab` (el teu treball, la configuració
+  de VS Code, les credencials de `gh` i de `claude-compte`, els paquets de Python instal·lats
+  amb `pip install --user` o en un entorn virtual) i la base de dades. Viuen al disc
+  persistent.
+- **Es conserva entre aturades, però no quan la imatge s'actualitza**: el que instal·les fora
+  de la teua carpeta amb `sudo` (paquets del sistema, programes a `/usr`). Aturar i engegar
+  no ho toca; quan l'administrador/a posa una versió nova de la imatge i el teu espai
+  s'actualitza, el sistema torna a ser el de la imatge. Els paquets `apt` que hages apuntat
+  amb `teclab-paquets` es reinstal·len sols en arrancar
+  ([Instal·lar paquets del sistema](../guies/paquets-del-sistema.md)).
 - Els programes que tenies en marxa (un notebook executant-se, una app web) s'aturen amb
   l'espai: en engegar-lo cal tornar-los a llançar.
 
@@ -57,7 +61,8 @@ sessió activa o demana a l'administrador/a com procedir.
 
 De tant en tant el Teclab publica una versió nova de la imatge de l'espai (eines noves,
 versions actualitzades). L'administrador/a la posa a la plantilla; el teu espai l'estrena
-quan s'actualitza i es torna a engegar. El teu disc persistent no es toca.
+quan s'actualitza i es torna a engegar. El teu disc persistent no es toca; el que havies
+instal·lat amb `sudo` es perd, llevat de la llista de `teclab-paquets`.
 
 ## Caducitat
 

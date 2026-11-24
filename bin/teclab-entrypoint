@@ -32,4 +32,13 @@ if [ -n "${TECLAB_CA_CERT:-}" ]; then
   fi
 fi
 
+# Paquets del sistema apuntats per l'usuari (teclab-paquets): si la llista té res i sudo
+# respon, es reinstal·len en segon pla (registre a ~/.teclab/paquets.log) perquè l'ordre del
+# contenidor (l'agent de Coder, JupyterLab) no espere apt. Sense llista, no fa res. Si el
+# contenidor s'ha reutilitzat, apt veu els paquets ja instal·lats i acaba de seguida.
+llista="${TECLAB_PAQUETS:-$HOME/.teclab/paquets}"
+if [ -s "$llista" ] && command -v teclab-paquets >/dev/null && sudo -n true 2>/dev/null; then
+  (teclab-paquets restaurar > "$HOME/.teclab/paquets.log" 2>&1 || echo "teclab-entrypoint: la restauració de paquets ha fallat; vegeu $HOME/.teclab/paquets.log" >&2) &
+fi
+
 exec "$@"

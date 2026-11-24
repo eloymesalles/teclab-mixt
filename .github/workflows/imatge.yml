@@ -99,6 +99,13 @@ jobs:
           # Sense TECLAB_CA_CERT l'entrada no fa res; amb una ruta inexistent avisa i arrenca
           docker run --rm -e TECLAB_CA_CERT=/no/hi/es "${IMATGE}:prova" sh -c 'echo "entrada ok"'
           r sh -c 'which codex && exit 1 || echo "sense codex (ok)"'
+          # sudo sense contrasenya per a teclab; teclab-paquets: llista buida, nom no vàlid rebutjat, ús
+          r sh -c '[ "$(id -un)" = teclab ] && sudo -n true && [ "$(sudo -n id -u)" = 0 ] && echo "sudo ok"'
+          r sh -c '[ -z "$(teclab-paquets llista)" ] && echo "llista buida (ok)"'
+          r teclab-paquets afegir 'no vàlid;' && exit 1 || echo "teclab-paquets rebutja noms no vàlids (ok)"
+          r teclab-paquets && exit 1 || echo "teclab-paquets sense ordre surt amb error (ok)"
+          # Amb una llista al disc, l'entrada la restaura en segon pla i l'ordre arrenca igual
+          docker run --rm "${IMATGE}:prova" sh -c 'mkdir -p ~/.teclab && echo sl > ~/.teclab/paquets && teclab-entrypoint sh -c "for i in \$(seq 1 90); do grep -q fet ~/.teclab/paquets.log 2>/dev/null && break; sleep 2; done; cat ~/.teclab/paquets.log; command -v sl"'
 
       # ---- Publicació (només amb versió i amb les variables del repo) ----------------------
 

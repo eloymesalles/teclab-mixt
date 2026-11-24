@@ -1,7 +1,7 @@
 # La imatge: eines i versions
 
 L'espai arranca des de la imatge `teclab-mixt`, que porta estes eines amb versió fixada. Les
-versions corresponen a la imatge 0.6.0.
+versions corresponen a la imatge 0.7.0.
 
 | Peça | Versió | Per a què |
 |---|---|---|
@@ -17,12 +17,15 @@ versions corresponen a la imatge 0.6.0.
 | git, ruff, detect-secrets | — / 0.17.0 / 1.5.0 | Control de versions, qualitat, detecció de secrets |
 | `gh` (CLI de GitHub) | 2.102.0 | Repositoris de GitHub des del terminal |
 | `teclab-consum` | — | Quant has gastat de la clau del projecte (vegeu [La passarel·la i el catàleg](../explicacio/passarel-la-i-catalog.md)) |
+| `teclab-paquets` | — | Paquets del sistema que vols conservar quan la imatge s'actualitze (vegeu [Instal·lar paquets del sistema](../guies/paquets-del-sistema.md)) |
 | PocketBase (binari a `/opt/pocketbase`) | 0.40.5 | Backend lleuger; no s'engega per defecte |
-| Eines del sistema | — | `curl`, `nano`, `less`, `unzip`, `openssh-client` |
+| Eines del sistema | — | `curl`, `nano`, `less`, `unzip`, `openssh-client`, `sudo` |
 
 ## Usuari i carpetes
 
-- Usuari `teclab` (no és root). No pots instal·lar paquets del sistema amb `apt`.
+- Usuari `teclab`, amb `sudo` sense contrasenya: pots instal·lar paquets del sistema amb
+  `apt` o executar ordres com a root dins del teu espai
+  ([Instal·lar paquets del sistema](../guies/paquets-del-sistema.md)).
 - Carpeta de treball: `/home/teclab/work`. VS Code s'hi obri directament.
 - Exemples: `/home/teclab/examples` (còpia de la imatge) i `/home/teclab/work/examples`
   (la teua còpia, per a modificar-la).
