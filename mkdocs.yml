@@ -67,6 +67,7 @@ nav:
       - L'agent de codi (Claude Code): guies/agent-de-codi.md
       - La base de dades de l'espai: guies/base-de-dades.md
       - Mostrar una app web: guies/app-web.md
+      - Instal·lar paquets del sistema: guies/paquets-del-sistema.md
       - Exportar dades i codi: guies/exportar-dades.md
       - Preparar el projecte per a la porta 2: guies/preparar-porta-2.md
   - Referència:

@@ -30,10 +30,13 @@ resta de valors de plataforma arriben sempre per l'entorn de l'espai (taula de s
 | git, ruff, detect-secrets | — / 0.17.0 / 1.5.0 |
 | `gh` (CLI de GitHub; `gh auth login` per codi de dispositiu, cadascú el seu) | 2.102.0 |
 | `teclab-consum` (despesa, pressupost i models de la clau del projecte, via `/key/info` de LiteLLM; `--breu`, `--json`) | — |
+| `teclab-paquets` (paquets del sistema que han de sobreviure a una imatge nova: `afegir`, `treure`, `llista`, `restaurar`; llista a `~/.teclab/paquets`, restaurada per l'entrada) | — |
 | PocketBase (binari a `/opt/pocketbase`, no s'engega) | 0.40.5 |
 
-Usuari `teclab` (uid 1000), directori de treball `/home/teclab/work`, exemples a
-`/home/teclab/examples`. Mida: uns 2,7 GB (Claude Code és un binari natiu de 270 MB).
+Usuari `teclab` (uid 1000) amb **`sudo` sense contrasenya** (des de la 0.7.0: el contenidor
+corre sense capacitats ni privilegis, ser root dins no dona res fora), directori de treball
+`/home/teclab/work`, exemples a `/home/teclab/examples`. Mida: uns 2,7 GB (Claude Code és un
+binari natiu de 270 MB).
 
 ## Variables d'entorn de l'espai
 
@@ -149,25 +152,25 @@ Si l'àlies apunta a un model de raonament (a la demo, `qwen3:8b`), `resum.py` u
 ## Construir i provar en local
 
 ```bash
-docker build -t teclab-mixt:0.6.0 .
+docker build -t teclab-mixt:0.7.0 .
 
 # Passarel·la i clau de prova a .env (ignorat per git), vegeu .env.example
 cp .env.example .env   # i omple LITELLM_BASE_URL i LITELLM_KEY
 
 # Sense les variables, els exemples diuen quina falta i surten (codi 2)
-docker run --rm teclab-mixt:0.6.0 python /home/teclab/examples/resum.py
+docker run --rm teclab-mixt:0.7.0 python /home/teclab/examples/resum.py
 
 # Demo, des del mateix servidor: el domini públic no fa hairpin, resol-lo a l'host (Caddy)
-docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.6.0 \
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.7.0 \
   python /home/teclab/examples/resum.py
 
 # Claude Code sense interactiu, per la passarel·la (cal CLAUDE_MODEL_SONNET al .env i que la
 # passarel·la tingui aquest model)
-docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.6.0 \
+docker run --rm --env-file .env --add-host api.mesalles.org:host-gateway teclab-mixt:0.7.0 \
   claude -p "explica en dues frases què fa /home/teclab/examples/resum.py"
 
 # JupyterLab en local (http://localhost:8888)
-docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.6.0
+docker run --rm -p 8888:8888 --env-file .env teclab-mixt:0.7.0
 ```
 
 A Git Bash de Windows, afegeix `MSYS_NO_PATHCONV=1` davant de `docker run` perquè no

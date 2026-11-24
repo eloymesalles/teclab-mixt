@@ -22,7 +22,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # ── Sistema ──
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      ca-certificates curl git openssh-client tini xz-utils unzip procps bash nano less \
+      ca-certificates curl git openssh-client tini xz-utils unzip procps bash nano less sudo \
  && rm -rf /var/lib/apt/lists/*
 
 # ── Client de PostgreSQL 16 (psql, pg_isready, pg_dump), del repositori oficial PGDG
@@ -33,8 +33,10 @@ RUN install -d /usr/share/postgresql-common/pgdg \
       > /etc/apt/sources.list.d/pgdg.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends "postgresql-client-16=${PG_CLIENT_VERSION}" \
- && rm -rf /var/lib/apt/lists/* \
+ && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/pgdg.list \
  && psql --version && pg_isready --version
+# (la font PGDG es lleva després d'instal·lar: la versió del client queda fixada, i l'apt
+#  de l'usuari (teclab-paquets) només consulta Debian, que és a la llista blanca de dominis)
 
 # ── CLI de GitHub (gh): paquet .deb oficial de la release, suma verificada (la de
 #    gh_<versió>_checksums.txt de la mateixa release). Cada persona s'autentica a mà
@@ -93,10 +95,17 @@ RUN pip install "uv==${UV_VERSION}" \
  && rm /tmp/requirements.txt \
  && jupyter lab --version && jupyterhub-singleuser --version
 
-# ── Usuari no root ──
+# ── Usuari no root, amb sudo sense contrasenya (decisió del 24/11/2026) ──
+# Perquè cada projecte puga instal·lar paquets del sistema sense una imatge nova. El contenidor
+# corre sense capacitats extra, sense privilegis ni socket de Docker: ser root dins no dona res
+# fora d'ell. La llista de paquets que ha de sobreviure a una imatge nova: teclab-paquets.
 RUN useradd --create-home --uid ${UID} --shell /bin/bash ${USER} \
  && mkdir -p /home/${USER}/work /home/${USER}/examples \
- && chown -R ${USER}:${USER} /home/${USER}
+ && chown -R ${USER}:${USER} /home/${USER} \
+ && echo "${USER} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER} \
+ && chmod 440 /etc/sudoers.d/${USER} \
+ && visudo -cf /etc/sudoers.d/${USER}
+COPY --chmod=755 bin/teclab-paquets /usr/local/bin/
 
 COPY --chown=${USER}:${USER} examples/ /home/${USER}/examples/
 # El context de build des de Windows arriba amb bit d'execució; els exemples no en volen
