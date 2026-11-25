@@ -14,7 +14,9 @@ del Teclab a Google Cloud** (`eloymesalles/teclab-gcp`: Coder amb una VM per esp
 en quina plataforma corre**: cap adreça, nom de màquina ni model de cap plataforma cuit a la
 imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espai.
 
-- `Dockerfile` — Python 3.12, Node LTS, JupyterLab, code-server, Claude Code, `openai`,
+- `Dockerfile` — base `python:3.12.x-slim-trixie` (Debian 13; bookworm va passar a LTS el
+  juny de 2026, #50: la base es fixa sempre a la Debian estable vigent), Node LTS,
+  JupyterLab, code-server, Claude Code, `openai`,
   git, `gh` (CLI de GitHub, `.deb` oficial amb suma verificada; autenticació a mà de cada
   persona amb `gh auth login`), ruff, detect-secrets, PocketBase (binari, no s'engega),
   exemples. **Versions

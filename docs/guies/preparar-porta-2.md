@@ -7,14 +7,14 @@ l'espai, `teclab-mixt`, segueix estes mateixes regles i serveix d'exemple.
 
 ## 1. Un `Dockerfile` que construïsca la imatge del projecte
 
-- Parteix d'una imatge base amb versió fixada (`python:3.12.15-slim-bookworm`, no
+- Parteix d'una imatge base amb versió fixada (`python:3.12.15-slim-trixie`, no
   `python:latest`).
 - Fixa la versió de cada eina i paquet (`requirements.txt` amb `==`).
 - Un usuari no root i una carpeta de treball.
 - Cap clau, adreça de servei ni valor d'entorn concret dins de la imatge.
 
 ```dockerfile
-FROM python:3.12.15-slim-bookworm
+FROM python:3.12.15-slim-trixie
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 RUN useradd --create-home --uid 1000 app

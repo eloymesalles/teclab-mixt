@@ -16,14 +16,14 @@ resta de valors de plataforma arriben sempre per l'entorn de l'espai (taula de s
 
 | Peça | Versió |
 |---|---|
-| Python (base `python:3.12.15-slim-bookworm`) + `uv` | 3.12.15 / 0.13.0 |
+| Python (base `python:3.12.15-slim-trixie`, Debian 13) + `uv` | 3.12.15 / 0.13.0 |
 | Node.js LTS | 24.21.0 |
 | JupyterLab / ipykernel | 4.6.4 / 7.4.0 |
 | `jupyterhub` (aporta `jupyterhub-singleuser`, mateixa versió que el hub) | 6.0.1 |
 | `jupyter-server-proxy` + `jupyter-code-server` (VS Code al launcher) | 4.6.0 / 1.2 |
 | code-server (VS Code al navegador) | 4.141.0 |
 | `openai` (client compatible amb la passarel·la) | 3.29.0 |
-| `psycopg` (driver de PostgreSQL) + client `psql` 16 (PGDG) | 3.3.6 / 16.15 |
+| `psycopg` (driver de PostgreSQL) + client `psql` 16 (PGDG) | 3.3.6 / 16.16 |
 | Claude Code (`@anthropic-ai/claude-code`, agent de codi al terminal; `claude` per la passarel·la, `claude-compte` amb la llicència de la UJI) | 2.1.300 |
 | `pydantic-ai-slim[openai]` + `langgraph` (SDK d'agents; vegeu `examples/README.md`) | 2.54.0 / 1.2.12 |
 | `opentelemetry-sdk` + `opentelemetry-exporter-otlp` (traces dels agents) | 1.45.0 |
