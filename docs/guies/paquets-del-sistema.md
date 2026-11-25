@@ -50,4 +50,5 @@ Més detall: [Cicle de vida d'un espai](../explicacio/cicle-de-vida.md).
 - Amb `sudo` pots espatllar el teu propi espai (esborrar una eina de la imatge, trencar
   Python del sistema). Si passa, demana a l'administrador/a que l'actualitze: el sistema torna
   al de la imatge i el teu `/home/teclab` i la base de dades no es toquen.
-- Docker no hi és: l'espai és un contenidor i no en pot crear d'altres.
+- Per a un servei que es distribueix com a imatge de contenidor, no cal `apt`:
+  [Docker dins de l'espai](docker.md).

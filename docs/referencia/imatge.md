@@ -1,7 +1,7 @@
 # La imatge: eines i versions
 
 L'espai arranca des de la imatge `teclab-mixt`, que porta estes eines amb versió fixada. Les
-versions corresponen a la imatge 0.7.0.
+versions corresponen a la imatge 0.8.0.
 
 | Peça | Versió | Per a què |
 |---|---|---|
@@ -18,6 +18,7 @@ versions corresponen a la imatge 0.7.0.
 | `gh` (CLI de GitHub) | 2.102.0 | Repositoris de GitHub des del terminal |
 | `teclab-consum` | — | Quant has gastat de la clau del projecte (vegeu [La passarel·la i el catàleg](../explicacio/passarel-la-i-catalog.md)) |
 | `teclab-paquets` | — | Paquets del sistema que vols conservar quan la imatge s'actualitze (vegeu [Instal·lar paquets del sistema](../guies/paquets-del-sistema.md)) |
+| Client de Docker (`docker`) + Compose + Buildx | 29.9.3 / 5.7.0 / 0.38.1 | Serveis auxiliars i imatges des de l'espai (vegeu [Docker dins de l'espai](../guies/docker.md)); només el client, el motor és el de la màquina |
 | PocketBase (binari a `/opt/pocketbase`) | 0.40.5 | Backend lleuger; no s'engega per defecte |
 | Eines del sistema | — | `curl`, `nano`, `less`, `unzip`, `openssh-client`, `sudo` |
 
@@ -37,4 +38,5 @@ versions corresponen a la imatge 0.7.0.
   LangChain complet: si el teu projecte en necessita un, l'instal·les tu i ho justifiques a
   l'Estudi d'Integració.
 - Cap clau d'API ni adreça de cap plataforma: tot arriba per l'entorn de l'espai.
-- Docker: l'espai és un contenidor i no en pot crear d'altres.
+- Cap motor de Docker: l'espai usa el de la seua màquina pel sòcol que munta la plataforma
+  ([Docker dins de l'espai](../guies/docker.md)).
