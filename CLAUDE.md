@@ -18,14 +18,18 @@ imatge; `LITELLM_BASE_URL` i `LITELLM_KEY` arriben sempre per l'entorn de l'espa
   git, `gh` (CLI de GitHub, `.deb` oficial amb suma verificada; autenticació a mà de cada
   persona amb `gh auth login`), ruff, detect-secrets, PocketBase (binari, no s'engega),
   exemples. **Versions
-  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.7.0` (cada canvi d'imatge puja
+  fixades**, mai `:latest`. Etiqueta actual `teclab-mixt:0.8.0` (cada canvi d'imatge puja
   la versió; docker-stack la fixa als compose i a la plantilla de Coder; al Teclab es fixa
   per empremta al registre `teclab`). Porta el client `psql` 16 (repositori PGDG, versió
   fixada; la font PGDG es lleva després d'instal·lar) i `psycopg`. L'usuari `teclab` té
   **`sudo` sense contrasenya** (`/etc/sudoers.d/teclab`, decisió del 24/11/2026): els
   projectes instal·len paquets del sistema sense esperar una imatge nova; el contenidor corre
   sense capacitats ni privilegis, així que root dins no dona res fora. No tornar a l'usuari
-  sense `sudo` sense una decisió nova.
+  sense `sudo` sense una decisió nova. Des de la 0.8.0 (#48) porta el **client** de Docker
+  amb Compose i Buildx (repositori oficial de Docker, versions fixades, la font es lleva
+  després d'instal·lar), **cap motor**: només fa res si la plataforma munta el sòcol (vegeu
+  «Socket de Docker»). Sense sòcol, el client 29.x diu «failed to connect to the docker
+  API» (abans «Cannot connect to the Docker daemon»): la prova de fum accepta els dos.
 - `bin/teclab-entrypoint` — entrada del contenidor (`tini` → script → ordre): si la plataforma
   passa `TECLAB_CA_CERT` (ruta del certificat de la CA del Teclab muntat al contenidor), escriu
   `~/.teclab/ca-bundle.pem` (CA públiques + CA del Teclab) i exporta `SSL_CERT_FILE`,
@@ -121,10 +125,12 @@ no s'ha de tocar.
   `-db` queda lligat a Postgres 16: canviar de major és migrar o esborrar. **Només dades
   sintètiques o anonimitzades** als espais (ENS mp.sw.1.1; Instrucció 05, apt. 7.2): cap
   dada de producció.
-- **Socket de Docker**: el reben Coder i JupyterHub (necessari); els espais de treball,
-  mai. Cap permís extra als espais: el `seccomp=unconfined` que demanava el sandbox de
-  Codex (bubblewrap; decisió de #11) va desaparèixer amb Codex (#22). Sense capacitats ni
-  privilegis.
+- **Socket de Docker**: a la demo el reben Coder i JupyterHub (necessari); els espais de
+  treball de la demo, mai. Al sandbox del Teclab a Google Cloud, la plantilla el munta a cada
+  espai (decisió del 25/11/2026, `teclab-gcp` #87: cada espai té màquina pròpia, sense
+  secrets ni IP pública), i per això la imatge porta el client (0.8.0). Cap altre permís extra
+  als espais: el `seccomp=unconfined` que demanava el sandbox de Codex (bubblewrap; decisió
+  de #11) va desaparèixer amb Codex (#22). Sense capacitats ni privilegis.
 
 ## Flux de treball — OBLIGATORI
 

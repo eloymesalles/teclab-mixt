@@ -48,8 +48,11 @@ L'únic paràmetre que pots editar tu és el **port de l'app web**
   s'actualitza, el sistema torna a ser el de la imatge. Els paquets `apt` que hages apuntat
   amb `teclab-paquets` es reinstal·len sols en arrancar
   ([Instal·lar paquets del sistema](../guies/paquets-del-sistema.md)).
-- Els programes que tenies en marxa (un notebook executant-se, una app web) s'aturen amb
-  l'espai: en engegar-lo cal tornar-los a llançar.
+- **Es conserva mentre existeix l'espai**: les imatges, els contenidors i els volums de Docker
+  que hages creat ([Docker dins de l'espai](../guies/docker.md)). Viuen al disc del sistema
+  de la màquina: sobreviuen a aturar, engegar i actualitzar, i desapareixen amb l'espai.
+- Els programes que tenies en marxa (un notebook executant-se, una app web, un servei de
+  Docker) s'aturen amb l'espai: en engegar-lo cal tornar-los a llançar.
 
 ## Aturada automàtica
 

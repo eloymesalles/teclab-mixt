@@ -99,6 +99,11 @@ jobs:
           # Sense TECLAB_CA_CERT l'entrada no fa res; amb una ruta inexistent avisa i arrenca
           docker run --rm -e TECLAB_CA_CERT=/no/hi/es "${IMATGE}:prova" sh -c 'echo "entrada ok"'
           r sh -c 'which codex && exit 1 || echo "sense codex (ok)"'
+          # Client de Docker (cap motor a la imatge): versions; sense sòcol, «docker ps» avisa i falla
+          r docker --version
+          r docker compose version
+          r docker buildx version
+          r sh -c 'docker ps 2>&1 | grep -qi "failed to connect to the docker API\|Cannot connect to the Docker daemon" && echo "docker sense sòcol avisa (ok)"'
           # sudo sense contrasenya per a teclab; teclab-paquets: llista buida, nom no vàlid rebutjat, ús
           r sh -c '[ "$(id -un)" = teclab ] && sudo -n true && [ "$(sudo -n id -u)" = 0 ] && echo "sudo ok"'
           r sh -c '[ -z "$(teclab-paquets llista)" ] && echo "llista buida (ok)"'

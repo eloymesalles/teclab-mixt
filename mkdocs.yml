@@ -68,6 +68,7 @@ nav:
       - La base de dades de l'espai: guies/base-de-dades.md
       - Mostrar una app web: guies/app-web.md
       - Instal·lar paquets del sistema: guies/paquets-del-sistema.md
+      - Docker dins de l'espai: guies/docker.md
       - Exportar dades i codi: guies/exportar-dades.md
       - Preparar el projecte per a la porta 2: guies/preparar-porta-2.md
   - Referència:

@@ -10,6 +10,9 @@ ARG GH_VERSION=2.102.0
 ARG GH_SHA256=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0
 ARG POCKETBASE_VERSION=0.40.5
 ARG UV_VERSION=0.13.0
+ARG DOCKER_CLI_VERSION=5:29.9.3-1~debian.12~bookworm
+ARG DOCKER_COMPOSE_VERSION=5.7.0-1~debian.12~bookworm
+ARG DOCKER_BUILDX_VERSION=0.38.1-1~debian.12~bookworm
 ARG USER=teclab
 ARG UID=1000
 
@@ -37,6 +40,22 @@ RUN install -d /usr/share/postgresql-common/pgdg \
  && psql --version && pg_isready --version
 # (la font PGDG es lleva després d'instal·lar: la versió del client queda fixada, i l'apt
 #  de l'usuari (teclab-paquets) només consulta Debian, que és a la llista blanca de dominis)
+
+# ── Client de Docker amb Compose i Buildx, del repositori oficial de Docker: NOMÉS el client,
+#    cap motor ni servei. Fa falta on la plataforma munta el sòcol del motor dins de l'espai
+#    (sandbox del Teclab a Google Cloud, teclab-gcp #87; a la demo no es munta i el client no
+#    fa res). La font es lleva després d'instal·lar, com la de PGDG ──
+RUN install -d /etc/apt/keyrings \
+ && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
+ && echo "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" \
+      > /etc/apt/sources.list.d/docker.list \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+      "docker-ce-cli=${DOCKER_CLI_VERSION}" \
+      "docker-compose-plugin=${DOCKER_COMPOSE_VERSION}" \
+      "docker-buildx-plugin=${DOCKER_BUILDX_VERSION}" \
+ && rm -rf /var/lib/apt/lists/* /etc/apt/sources.list.d/docker.list /etc/apt/keyrings/docker.asc \
+ && docker --version && docker compose version && docker buildx version
 
 # ── CLI de GitHub (gh): paquet .deb oficial de la release, suma verificada (la de
 #    gh_<versió>_checksums.txt de la mateixa release). Cada persona s'autentica a mà
