@@ -1,18 +1,18 @@
 # teclab-mixt — imatge d'espai de treball compartida per Coder i JupyterHub.
 # Totes les versions fixades. Arquitectura: linux/amd64.
-FROM python:3.12.15-slim-bookworm
+FROM python:3.12.15-slim-trixie
 
 ARG NODE_VERSION=24.21.0
 ARG CODE_SERVER_VERSION=4.141.0
 ARG CLAUDE_CODE_VERSION=2.1.300
-ARG PG_CLIENT_VERSION=16.15-1.pgdg12+2
+ARG PG_CLIENT_VERSION=16.16-1.pgdg13+1
 ARG GH_VERSION=2.102.0
 ARG GH_SHA256=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0
 ARG POCKETBASE_VERSION=0.40.5
 ARG UV_VERSION=0.13.0
-ARG DOCKER_CLI_VERSION=5:29.9.3-1~debian.12~bookworm
-ARG DOCKER_COMPOSE_VERSION=5.7.0-1~debian.12~bookworm
-ARG DOCKER_BUILDX_VERSION=0.38.1-1~debian.12~bookworm
+ARG DOCKER_CLI_VERSION=5:29.9.3-1~debian.13~trixie
+ARG DOCKER_COMPOSE_VERSION=5.7.0-1~debian.13~trixie
+ARG DOCKER_BUILDX_VERSION=0.38.1-1~debian.13~trixie
 ARG USER=teclab
 ARG UID=1000
 
@@ -29,10 +29,10 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # ── Client de PostgreSQL 16 (psql, pg_isready, pg_dump), del repositori oficial PGDG
-#    (Debian bookworm només porta el 15); mateixa versió major que el sidecar de Coder ──
+#    (Debian trixie porta el 17); mateixa versió major que el sidecar de Coder ──
 RUN install -d /usr/share/postgresql-common/pgdg \
  && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
- && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
+ && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt trixie-pgdg main" \
       > /etc/apt/sources.list.d/pgdg.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends "postgresql-client-16=${PG_CLIENT_VERSION}" \
@@ -47,7 +47,7 @@ RUN install -d /usr/share/postgresql-common/pgdg \
 #    fa res). La font es lleva després d'instal·lar, com la de PGDG ──
 RUN install -d /etc/apt/keyrings \
  && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
- && echo "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable" \
+ && echo "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian trixie stable" \
       > /etc/apt/sources.list.d/docker.list \
  && apt-get update \
  && apt-get install -y --no-install-recommends \

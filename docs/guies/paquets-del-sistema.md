@@ -21,7 +21,7 @@ teclab-paquets treure htop         # el lleva de la llista i el desinstal·la
 teclab-paquets restaurar           # reinstal·la tota la llista ara mateix
 ```
 
-Els noms són els dels paquets de Debian 12 (`apt search <paraula>` per a buscar-ne).
+Els noms són els dels paquets de Debian 13 (`apt search <paraula>` per a buscar-ne).
 La llista és un fitxer de text amb un nom per línia: també la pots editar a mà.
 
 ## Instal·lar sense apuntar-ho

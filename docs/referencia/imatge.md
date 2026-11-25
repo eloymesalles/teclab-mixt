@@ -5,12 +5,12 @@ versions corresponen a la imatge 0.8.0.
 
 | Peça | Versió | Per a què |
 |---|---|---|
-| Python (base `python:3.12-slim-bookworm`) + `uv` | 3.12.15 / 0.13.0 | Llenguatge principal; `uv` instal·la paquets ràpid |
+| Python (base `python:3.12-slim-trixie`, Debian 13) + `uv` | 3.12.15 / 0.13.0 | Llenguatge principal; `uv` instal·la paquets ràpid |
 | Node.js LTS | 24.21.0 | JavaScript; necessari per a VS Code i Claude Code |
 | JupyterLab / ipykernel | 4.6.4 / 7.4.0 | Notebooks |
 | code-server | 4.141.0 | VS Code al navegador |
 | `openai` (client Python) | 3.29.0 | Cridar la passarel·la |
-| `psycopg` + client `psql` 16 | 3.3.6 / 16.15 | Base de dades de l'espai (`psql`, `pg_dump`, `pg_isready`) |
+| `psycopg` + client `psql` 16 | 3.3.6 / 16.16 | Base de dades de l'espai (`psql`, `pg_dump`, `pg_isready`) |
 | Claude Code (`@anthropic-ai/claude-code`) | 2.1.300 | Agent de codi al terminal (`claude`, `claude-compte`) |
 | `pydantic-ai-slim[openai]` + `langgraph` | 2.54.0 / 1.2.12 | SDK d'agents |
 | `opentelemetry-sdk` + `opentelemetry-exporter-otlp` | 1.45.0 | Traces dels agents |
